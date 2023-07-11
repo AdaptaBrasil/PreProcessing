@@ -46,11 +46,16 @@ def carregaMalha():
         nextColId = 1
     return nextColId, malha
 
-# Encontra a coluna de valir do indicador, caso o nome esteja muito fora do parão.
+# Encontra a coluna de valor do indicador:
+# - Testa nomes "padrão".
 # - Encontra a primeira coluna float a pesquisando partir da última coluna para a primeira.
 # - Caso exista, testa se os valores da coluna estão entre 0 e 1.
 # - Se sim, retorna o nome da coluna, se não retorna erro.
 def encontraColunaIndicador(indicador: pd.DataFrame) -> str:
+    padroes = ['CL_ORIG', 'CL_N_ORIG', 'N_ORIG']
+    for padrao in padroes:
+        if padrao in indicador.columns:
+            return padrao
     for i, dtype in enumerate(reversed(indicador.dtypes)):
         if dtype == float:
             coltest = indicador.columns[len(indicador.columns)-i-1]
@@ -92,21 +97,14 @@ if __name__ == "__main__":
           # Adicionar ID caso não exista
           if not('ID' in indicador.columns):
               indicador.insert(0, 'ID', range(1, len(indicador)+1))
-
-          if not('CL_ORIG' in indicador.columns):
-              if ('CL_N_ORIG' in indicador.columns):
-                indicador.rename(columns={"CL_N_ORIG": "CL_ORIG"}, inplace=True)
-              elif  ('N_ORIG' in indicador.columns):
-                  indicador.rename(columns={"N_ORIG": "CL_ORIG"}, inplace=True)
-              else:
-                  colName = encontraColunaIndicador(indicador)
-                  if not(colName.startswith('ERRO":')):
-                      indicador.rename(columns={colName: "CL_ORIG"}, inplace=True)
-                  else:
-                      print(colName)
-                      nova_linha = {'nome_arquivo': nome_arquivo_solo, 'coluna': colName}
-                      df_dados_relacao = df_dados_relacao.append(nova_linha, ignore_index=True)
-                      continue
+          colName = encontraColunaIndicador(indicador)
+          if not(colName.startswith('ERRO":')):
+              indicador.rename(columns={colName: "CL_ORIG"}, inplace=True)
+          else:
+              print(colName)
+              nova_linha = {'nome_arquivo': nome_arquivo_solo, 'coluna': colName}
+              df_dados_relacao = df_dados_relacao.append(nova_linha, ignore_index=True)
+              continue
 
           # Imprimir a nova CRS
           if DEBUG:
