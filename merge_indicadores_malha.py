@@ -1,7 +1,6 @@
-# Vetores, matrizes, visualização e manipulação de dados
-import pandas as pd
+# Example: python3 merge_indicadores_malha.py --mascara_indicadores=indicadores/*.shp --arquivo_malha=malha/ferrovias.shp --arquivo_relacao=relacao_arquivos_colunas_malha_rodovias.xlsx --nova_malha=indicadores_rodovias.shp
 
-# Ferramentas do GeoPandas e CRS
+import pandas as pd
 import geopandas as gpd
 from pyproj import CRS
 
@@ -9,21 +8,16 @@ from pyproj import CRS
 import os
 import glob
 from datetime import datetime
+import argparse
+
 import warnings
 # Ignorar warnings
 warnings.filterwarnings("ignore")
 
-MASCARA_ARQUIVOS_INDICADORES = r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\01_RODOVIA_Adriano\04_BASE_DE_DADOS\**\*.shp"
-CAMINHO_ARQUIVO_MALHA =  r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\indicadores_rodovias_malha.shp"
-NOME_ARQUIVO_RELACAO_COLUNAS = r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\relacao_arquivos_colunas_malha_rodovias.xlsx"
+DEBUG = True
 
-# Arquivo final gerado de ferrovias
-CAMINHO_NOVO_ARQUIVO_MALHA_ATUALIZADO = 'D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\indicadores_rodovias.shp'
-
-DEBUG = False
-
-def carregaMalha():
-    malha = gpd.read_file(CAMINHO_ARQUIVO_MALHA)
+def carregaMalha(caminho_malha):
+    malha = gpd.read_file(caminho_malha)
 
     if 'objectid' not in malha.columns:
         malha.columns = ['objectid', *malha.columns[1:]]
@@ -63,10 +57,29 @@ def encontraColunaIndicador(indicador: pd.DataFrame) -> str:
                 return coltest
     return 'ERRO: coluna de indicador não encontrada!'
 
-if __name__ == "__main__":
-    nextColId, malha = carregaMalha()
+# Verifica se a pasta output existe, se não, cria
+def verificaPastaOutput():
+    if not os.path.exists('output'):
+        os.makedirs('output')
+def main(args):
+
+    verificaPastaOutput()
+
+    # Arquivos de entrada com os dados dos shapefiles dos indicadores e malha
+    mascara_arquivos_indicadores = args.mascara_indicadores
+    caminho_arquivo_malha = args.arquivo_malha
+
+    # Arquivos de saída com os dados dos shapefiles dos indicadores e relações
+    nome_arquivo_relacao_colunas = args.arquivo_relacao
+    caminho_nova_malha_atualizada = args.nova_malha
+
+    # Concatena o nome output/ com o nome do arquivo de saída
+    caminho_nova_malha_atualizada = os.path.join('output', caminho_nova_malha_atualizada)
+    nome_arquivo_relacao_colunas = os.path.join('output', nome_arquivo_relacao_colunas)
+
+    nextColId, malha = carregaMalha(caminho_arquivo_malha)
     if nextColId > 1:
-        df_dados_relacao = pd.read_excel(NOME_ARQUIVO_RELACAO_COLUNAS)
+        df_dados_relacao = pd.read_excel(nome_arquivo_relacao_colunas)
     else:
         dados_relacao = {
             'nome_arquivo': [],
@@ -75,7 +88,7 @@ if __name__ == "__main__":
         df_dados_relacao = pd.DataFrame(dados_relacao)
     print(df_dados_relacao.head())
 
-    arquivos_shp = glob.glob(MASCARA_ARQUIVOS_INDICADORES, recursive=True)
+    arquivos_shp = glob.glob(mascara_arquivos_indicadores, recursive=True)
 
     print("Quantidade de arquivos de volumes encontrados: ", len(arquivos_shp))
 
@@ -198,9 +211,22 @@ if __name__ == "__main__":
           # break
 
           # Salvar o DataFrame em um arquivo Excel
-          df_dados_relacao.to_excel(NOME_ARQUIVO_RELACAO_COLUNAS, index=False)
+          df_dados_relacao.to_excel(nome_arquivo_relacao_colunas, index=False)
 
           # Salvar malha
-          malha.to_file(CAMINHO_NOVO_ARQUIVO_MALHA_ATUALIZADO)
+          malha.to_file(caminho_nova_malha_atualizada)
+
+          print("Nova malha atualizada salva em: ", caminho_nova_malha_atualizada)
+          print("Arquivo relacao colunas salvo em: ", nome_arquivo_relacao_colunas)
       except Exception as ex:
           print(f'ERRO: {ex}\n')
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mascara_indicadores", required=True, help="Caminho da máscara de arquivos indicadores. Será usado o glob para encontrar os arquivos indicadores")
+    parser.add_argument("--arquivo_malha", required=True, help="Caminho do arquivo de malha")
+    parser.add_argument("--arquivo_relacao", required=True, help="Caminho do arquivo de relação de colunas")
+    parser.add_argument("--nova_malha", required=True, help="Caminho do novo arquivo de malha atualizado")
+    args = parser.parse_args()
+
+    main(args)
