@@ -216,7 +216,7 @@ def main(args):
           # Salvar malha
           malha.to_file(caminho_nova_malha_atualizada)
 
-          print("Nova malha atualizada salva em: ", caminho_nova_malha_atualizada)
+          print("\nNova malha atualizada salva em: ", caminho_nova_malha_atualizada)
           print("Arquivo relacao colunas salvo em: ", nome_arquivo_relacao_colunas)
       except Exception as ex:
           print(f'ERRO: {ex}\n')
