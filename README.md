@@ -1,45 +1,44 @@
-# JupyterAdaptaBrasil
+# Merge de Indicadores em Malha
 
-#### Cruzamento de indicadores sobre uma malha
-
-Este repositório contém um código em Python que realiza a manipulação e processamento de dados espaciais utilizando as bibliotecas `geopandas`, `pandas` e `pyproj`. O objetivo principal do código é realizar a interseção de geometrias e realizar cálculos de média ponderada para atribuir valores a uma coluna específica de um arquivo shapefile.
+Este repositório contém um script Python chamado `merge_indicadores_malha.py` que realiza a junção de indicadores em uma malha geoespacial. O script utiliza a biblioteca `geopandas` para manipulação de dados espaciais e `pandas` para manipulação de dados tabulares.
 
 ## Requisitos
 
-Antes de executar o código, certifique-se de ter instalado as seguintes bibliotecas:
+Certifique-se de ter os seguintes requisitos instalados:
 
-- `pandas`
-- `geopandas`
-- `pyproj`
+- Python 3
+- Bibliotecas Python: `pandas`, `geopandas`, `pyproj`
 
-Você pode instalar as bibliotecas executando os seguintes comandos:
+Você pode instalar as bibliotecas necessárias executando o seguinte comando:
 
 ```shell
-pip install pandas geopandas pyproj
+pip install -r requirements.txt
 ```
+
+Isso irá instalar todas as dependências listadas no arquivo `requirements.txt`.
+
+## Instalação
+
+1. Clone este repositório para o seu ambiente local.
+2. Navegue até o diretório do repositório.
 
 ## Uso
 
-1. Certifique-se de ter os arquivos necessários no diretório especificado pelo caminho definido nas variáveis `MASCARA_ARQUIVOS_INDICADORES`, `CAMINHO_ARQUIVO_MALHA` e `NOME_ARQUIVO_RELACAO_COLUNAS`.
+Execute o script `merge_indicadores_malha.py` passando os argumentos necessários. O script requer os seguintes argumentos:
 
-2. Execute o arquivo Python:
+- `--mascara_indicadores`: Caminho para a máscara de arquivos indicadores. Será usado o `glob` para encontrar os arquivos indicadores.
+- `--arquivo_malha`: Caminho do arquivo de malha.
+- `--arquivo_relacao`: Caminho do arquivo de relação de colunas.
+- `--nova_malha`: Caminho do novo arquivo de malha atualizado.
+
+Aqui está um exemplo de como executar o script:
 
 ```shell
-python main.py
+python3 merge_indicadores_malha.py --mascara_indicadores=indicadores/*.shp --arquivo_malha=malha/ferrovias.shp --arquivo_relacao=relacao_arquivos_colunas_malha_rodovias.xlsx --nova_malha=indicadores_rodovias.shp
 ```
 
-## Configuração
-
-Antes de executar o código, você pode ajustar as seguintes variáveis de acordo com suas necessidades:
-
-- `MASCARA_ARQUIVOS_INDICADORES`: Caminho da máscara para localizar os arquivos de indicadores.
-- `CAMINHO_ARQUIVO_MALHA`: Caminho do arquivo shapefile da malha.
-- `NOME_ARQUIVO_RELACAO_COLUNAS`: Caminho do arquivo Excel que contém a relação de colunas e arquivos processados.
-- `CAMINHO_NOVO_ARQUIVO_MALHA_ATUALIZADO`: Caminho para salvar o arquivo shapefile da malha atualizada.
-- `DEBUG`: Variável booleana para ativar/desativar o modo de depuração.
+Certifique-se de fornecer os caminhos corretos para os arquivos indicadores, arquivo de malha, arquivo de relação de colunas e o novo arquivo de malha atualizado.
 
 ## Licença
 
-Este projeto está licenciado sob a licença MIT. Consulte o arquivo `LICENSE` para obter mais informações.
-
-Fim
+Este projeto está licenciado sob a Licença MIT. Consulte o arquivo [LICENSE](./LICENSE) para obter mais informações.
