@@ -1,6 +1,9 @@
 indicadores/
 malha/
 output/
+assets/
+temp/
+rasters/
 
 
 # Byte-compiled / optimized / DLL files
