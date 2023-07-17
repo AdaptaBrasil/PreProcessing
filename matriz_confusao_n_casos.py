@@ -61,6 +61,18 @@ def funcaoRetornaCaminho(string, lista):
             return item
     return None  # Return None if the string is not found in any item
 
+def encontraColunaIndicador(indicador: pd.DataFrame) -> str:
+    padroes = ['CL_ORIG', 'CL_N_ORIG', 'N_ORIG']
+    for padrao in padroes:
+        if padrao in indicador.columns:
+            return padrao
+    for i, dtype in enumerate(reversed(indicador.dtypes)):
+        if dtype == float:
+            coltest = indicador.columns[len(indicador.columns)-i-1]
+            if len(indicador.query(f'{coltest} >= 0 and {coltest} <= 1.0')) == len(indicador):
+                return coltest
+    return 'ERRO: coluna de indicador não encontrada!'
+
 def matrizConfusao(classe_original, classe_ponderada, display_labels: list, indicador: str, arquivo_saida: str):
     """Gera a matriz de confusão e salva uma imagem com o resultado.
 
@@ -120,10 +132,11 @@ def main(args):
     df_planilha_indicadores = df_planilha_indicadores.drop(columns=[df_planilha_indicadores.columns[0]])
 
     # Andar em cada coluna com for
-    for i_coluna, nome_indicador in enumerate(df_planilha_indicadores.columns):
+    for i_coluna, nome_coluna in enumerate(df_planilha_indicadores.columns):
         # Imprimir o nome da coluna
-        print(f"\nIniciando o processamento para o indicador {i_coluna}: {nome_indicador}")
-
+        print(f"\nIniciando o processamento para o indicador {i_coluna}: {nome_coluna}")
+        ponto = nome_coluna.rfind('.')
+        nome_indicador = nome_coluna if ponto == -1 else nome_coluna[:ponto]
         # Verifica se o nome_indicador está contido nas strings da lista de indicadores (lista_indicadores_shp)
         caminho_arquivo_shp = funcaoRetornaCaminho(nome_indicador, lista_indicadores_shp)
         if caminho_arquivo_shp is None:
@@ -152,22 +165,26 @@ def main(args):
         # Depois, junta indicador+ferrovias com o valor original do indicador.
         intersecao = gpd.sjoin(indicador, malha_merge, how='inner', predicate='intersects')
 
-
-
         # Rotina que gera a matriz de confusão.
         CONFUSION_BINS =   [0, 0.01, 0.25, 0.50, 0.75, 1]
         CONFUSION_LABELS = ['0.00 a 0.01', '0.01 a 0.25', '0.25 a 0.50', '0.50 a 0.75', '0.75 a 1']
-        # BUG a partir daqui
-        intersecao['label_indicador'] = pd.cut(x=intersecao['CL_N_ORIG'], bins=CONFUSION_BINS,
+
+        campo_dado = encontraColunaIndicador(intersecao)
+
+        intersecao['label_indicador'] = pd.cut(x=intersecao[campo_dado], bins=CONFUSION_BINS,
                                        labels=CONFUSION_LABELS)
         intersecao['label_estimativa'] = pd.cut(x=intersecao['valores'], bins=CONFUSION_BINS,
                                        labels=CONFUSION_LABELS)
 
-        caminho_saida_matriz_indicador_i = f'output/matriz_confusao_indicador_{i_coluna}_{nome_indicador}.png'
+        intersecao = intersecao.dropna(subset=['label_indicador', 'label_estimativa'])
+        intersecao['label_indicador'] = intersecao['label_indicador'].values.astype('string')
+        intersecao['label_estimativa'] = intersecao['label_estimativa'].values.astype('string')
+
+        caminho_saida_matriz_indicador_i = f'output/matriz_confusao_indicador_{i_coluna}_{nome_coluna}.png'
         matrizConfusao(intersecao['label_indicador'],
                        intersecao['label_estimativa'],
                        CONFUSION_LABELS,
-                       nome_indicador, caminho_saida_matriz_indicador_i)
+                       nome_coluna, caminho_saida_matriz_indicador_i)
         del intersecao
         del df_indicador
         del caminho_arquivo_shp
