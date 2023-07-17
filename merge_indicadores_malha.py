@@ -4,6 +4,8 @@ import pandas as pd
 import geopandas as gpd
 from pyproj import CRS
 
+import openpyxl
+
 # Bibliotecas úteis do sistema
 import os
 import glob
@@ -33,7 +35,7 @@ def carregaMalha(caminho_malha):
         print("Nova CRS:", malha.crs)
         # Quantidade de itens na malha
         print("Quantidade de itens na malha: ", len(malha))
-    if 'I_0' in malha.columns:
+    if 'I_1' in malha.columns:
         lastCol = malha.columns[len(malha.columns)-2]
         nextColId = int(lastCol[2:]) + 1
     else:
@@ -97,8 +99,10 @@ def main(args):
       try:
           # O nome do arquivo, pois a variavel  contém o caminho inteiro
           nome_arquivo_solo = os.path.basename(caminho_arquivo_indicador).split('.')[0]
-
-          print(f"\nIniciando o processamento do arquivo {nextColId + i}: {caminho_arquivo_indicador} {datetime.now()}")
+          ja_processado = df_dados_relacao.loc[df_dados_relacao['nome_arquivo'] == nome_arquivo_solo]
+          if len(ja_processado) > 0:
+              continue
+          print(f"\nIniciando o processamento do arquivo {i}: {caminho_arquivo_indicador} {datetime.now()}")
           indicador = gpd.read_file(caminho_arquivo_indicador)
             # Imprimir a CRS atual
           if DEBUG:
@@ -116,7 +120,7 @@ def main(args):
           else:
               print(colName)
               nova_linha = {'nome_arquivo': nome_arquivo_solo, 'coluna': colName}
-              df_dados_relacao = df_dados_relacao.append(nova_linha, ignore_index=True)
+              df_dados_relacao = df_dados_relacao._append(nova_linha, ignore_index=True)
               continue
 
           # Imprimir a nova CRS
@@ -140,7 +144,7 @@ def main(args):
             print(f"Quantidade de intersecoes para {i}: ", len(intersecao))
 
           # Chave para a coluna
-          chave_coluna_i = 'I_' + str(i + nextColId)
+          chave_coluna_i = 'I_' + str(i)
           # Criar a nova coluna "I_i" e atribuir um valor float
           malha[chave_coluna_i] = -1.0  # Por exemplo, atribuir o valor 10 a todos os registros
 
@@ -189,9 +193,6 @@ def main(args):
                   # Obter o valor de CL_ORIG
                   CL_ORIG = linha_volume['CL_ORIG'].values[0]
 
-                  # Atualizar as somas
-                  if DEBUG:
-                    print("area_interseccao: ", area_interseccao)
                   soma_valores += CL_ORIG * area_interseccao
                   soma_areas += area_interseccao
 
@@ -207,7 +208,7 @@ def main(args):
           nova_linha = {'nome_arquivo': nome_arquivo_solo, 'coluna': chave_coluna_i}
 
           # Adicionar a nova linha ao DataFrame
-          df_dados_relacao = df_dados_relacao.append(nova_linha, ignore_index=True)
+          df_dados_relacao = df_dados_relacao._append(nova_linha, ignore_index=True)
           # break
 
           # Salvar o DataFrame em um arquivo Excel
