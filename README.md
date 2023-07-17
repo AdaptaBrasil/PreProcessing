@@ -42,3 +42,12 @@ Certifique-se de fornecer os caminhos corretos para os arquivos indicadores, arq
 ## Licença
 
 Este projeto está licenciado sob a Licença MIT. Consulte o arquivo [LICENSE](./LICENSE) para obter mais informações.
+
+# Erros communs
+####  rtree
+Talves seja necessário instalar umas dependências Linux:
+```shell
+pip uninstall rtree
+sudo apt install libspatialindex-dev
+pip install rtree
+```
