@@ -171,13 +171,14 @@ def main(args):
                 continue
 
               # Imprimir as linhas encontradas
-              if DEBUG:
-                print(f"\nObjectID: {objectid_i_malha}")
-                print("Quantidade de linhas em intersecoes:", quant_linhas)
+              # if DEBUG:
+              #   print(f"\nObjectID: {objectid_i_malha}")
+              #   print("Quantidade de linhas em intersecoes:", quant_linhas)
 
               # Variáveis para cálculo da média ponderada
               soma_valores = 0
               soma_areas = 0
+              max_valor = -1
 
               for _, linha_j_intersecao in linhas_intersecoes.iterrows():
                   ID_j_intersecao = linha_j_intersecao['ID']
@@ -196,13 +197,15 @@ def main(args):
                   soma_valores += CL_ORIG * area_interseccao
                   soma_areas += area_interseccao
 
+                  max_valor = CL_ORIG if CL_ORIG > max_valor else max_valor
+
               # Calcular a média ponderada
               media_ponderada = soma_valores / soma_areas
-              if DEBUG:
-                print(f"Média ponderada para {indice_malha + nextColId}:", media_ponderada)
-
               # Inserir o valor da média ponderada na coluna valor_indi da tabela malha
-              malha.at[indice_malha, chave_coluna_i] = media_ponderada
+              malha.at[indice_malha, chave_coluna_i] = media_ponderada if args.media else max_valor
+              # if DEBUG:
+              #   print(f"Valores para {indice_malha + nextColId}: Média: {media_ponderada} Máxima: {max_valor}")
+
 
           # Nova linha a ser adicionada
           nova_linha = {'nome_arquivo': nome_arquivo_solo, 'coluna': chave_coluna_i}
@@ -228,6 +231,9 @@ if __name__ == "__main__":
     parser.add_argument("--arquivo_malha", required=True, help="Caminho do arquivo de malha")
     parser.add_argument("--arquivo_relacao", required=True, help="Caminho do arquivo de relação de colunas")
     parser.add_argument("--nova_malha", required=True, help="Caminho do novo arquivo de malha atualizado")
+    parser.add_argument("--media", required=True, help="Calcular pelo valor máximo, não pela média.",
+                        type=bool,
+                        action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
 
     main(args)

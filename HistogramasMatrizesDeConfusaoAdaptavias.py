@@ -11,10 +11,16 @@ from sklearn.metrics import confusion_matrix
 # Ignorar warnings
 import warnings
 warnings.filterwarnings("ignore")
+#
+# MASCARA_ARQUIVOS_INDICADORES = r"H:\AdaptaBrasil\01_RODOVIA_Adriano\04_BASE_DE_DADOS\**\*.shp"
+# CAMINHO_ARQUIVO_MALHA =  r"H:\AdaptaBrasil\output\indicadores_rodovias01.shp"
+# NOME_ARQUIVO_RELACAO_COLUNAS = r"H:\AdaptaBrasil\output\indicadores_rodovias.xlsx"
+# PATH_IMAGENS_HISTOGRAMA = r'H:\AdaptaBrasil\output\imagens\histogramas'
+# PATH_IMAGENS_MATRIZ_CONFUSAO = r'H:\AdaptaBrasil\output\imagens\matrizes_confusao'
 
-MASCARA_ARQUIVOS_INDICADORES = r"H:\AdaptaBrasil\01_RODOVIA_Adriano\04_BASE_DE_DADOS\**\*.shp"
-CAMINHO_ARQUIVO_MALHA =  r"H:\AdaptaBrasil\output\indicadores_rodovias01.shp"
-NOME_ARQUIVO_RELACAO_COLUNAS = r"H:\AdaptaBrasil\output\indicadores_rodovias.xlsx"
+MASCARA_ARQUIVOS_INDICADORES = r"H:\AdaptaBrasil\04_BASE_DE_DADOS_FERROVIAS\**\*.shp"
+CAMINHO_ARQUIVO_MALHA =  r"H:\AdaptaBrasil\output\indicadores_ferrovias.shp"
+NOME_ARQUIVO_RELACAO_COLUNAS = r"H:\AdaptaBrasil\output\indicadores_ferrovias.xlsx"
 PATH_IMAGENS_HISTOGRAMA = r'H:\AdaptaBrasil\output\imagens\histogramas'
 PATH_IMAGENS_MATRIZ_CONFUSAO = r'H:\AdaptaBrasil\output\imagens\matrizes_confusao'
 
@@ -130,7 +136,7 @@ if __name__ == "__main__":
                            intersecao['label_malha'],
                            CONFUSION_LABELS,
                            nome_arquivo_solo)
-            intersecao['diff'] = intersecao[coluna_indicador] - intersecao[coluna_malha]
-            histogram(intersecao['diff'].to_list(), nome_arquivo_solo)
+            #intersecao['diff'] = intersecao[coluna_indicador] - intersecao[coluna_malha]
+            #histogram(intersecao['diff'].to_list(), nome_arquivo_solo)
         except Exception as ex:
             print(f'ERRO: {ex}\n')
