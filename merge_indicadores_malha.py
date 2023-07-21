@@ -42,22 +42,43 @@ def carregaMalha(caminho_malha):
         nextColId = 1
     return nextColId, malha
 
-# Encontra a coluna de valor do indicador:
-# - Testa nomes "padrão".
-# - Encontra a primeira coluna float a pesquisando partir da última coluna para a primeira.
-# - Caso exista, testa se os valores da coluna estão entre 0 e 1.
-# - Se sim, retorna o nome da coluna, se não retorna erro.
 def encontraColunaIndicador(indicador: pd.DataFrame) -> str:
+    """
+    Encontra a coluna de valor do indicador.
+
+    Esta função realiza as seguintes etapas para encontrar a coluna de valor do indicador:
+    1. Testa nomes "padrão" fornecidos na lista de padrões.
+    2. Encontra a primeira coluna float ao pesquisar da última coluna para a primeira.
+    3. Verifica se os valores da coluna estão entre 0 e 1.
+    4. Se os valores estão dentro do intervalo, retorna o nome da coluna.
+    5. Caso a coluna não seja encontrada, retorna uma mensagem de erro.
+
+    Parâmetros:
+    indicador (pd.DataFrame): O DataFrame contendo os dados do indicador a ser analisado.
+
+    Retorna:
+    str: O nome da coluna do indicador que satisfaz as condições, ou uma mensagem de erro caso não seja encontrada.
+
+    Exemplo:
+    >>> df = pd.DataFrame({'CL_ORIG': [0.1, 0.5, 0.9], 'CL_DEST': [0.2, 0.6, 0.8]})
+    >>> encontraColunaIndicador(df)
+    'CL_ORIG'
+
+    >>> df = pd.DataFrame({'CL_ORIGEM': [0.1, 0.5, 0.9], 'CL_DESTINO': [0.2, 0.6, 0.8]})
+    >>> encontraColunaIndicador(df)
+    'ERRO: coluna de indicador não encontrada!'
+    """
     padroes = ['CL_ORIG', 'CL_N_ORIG', 'N_ORIG']
     for padrao in padroes:
         if padrao in indicador.columns:
             return padrao
     for i, dtype in enumerate(reversed(indicador.dtypes)):
         if dtype == float:
-            coltest = indicador.columns[len(indicador.columns)-i-1]
+            coltest = indicador.columns[len(indicador.columns) - i - 1]
             if len(indicador.query(f'{coltest} >= 0 and {coltest} <= 1.0')) == len(indicador):
                 return coltest
     return 'ERRO: coluna de indicador não encontrada!'
+
 
 # Verifica se a pasta output existe, se não, cria
 def verificaPastaOutput():
