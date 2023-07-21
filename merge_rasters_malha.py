@@ -190,21 +190,21 @@ def main(args):
                     if len(values) > 0:
                         maximo_valor = np.nanmax(values)
                         # Realizar os cálculos
-                        media_ariticmetica = np.mean(values)
+                        media_aritmetica = np.mean(values)
                     else:
                         # Define um valor padrão para maximo_valor quando a lista está vazia (por exemplo, -1)
-                        maximo_valor = -1
-                        # Define um valor padrão para media_ariticmetica quando a lista está vazia (por exemplo, -1)
-                        media_ariticmetica = -1
+                        maximo_valor = -1.0
+                        # Define um valor padrão para media_aritmetica quando a lista está vazia (por exemplo, -1)
+                        media_aritmetica = -1.0
 
                     # Inserir o valor da média ou do máximo na coluna
-                    malha.at[idx, chave_coluna_i] = media_ariticmetica if args.media else maximo_valor
+                    malha.at[idx, chave_coluna_i] = media_aritmetica if args.media else maximo_valor
                     
                     # Atualizar a barra de progresso
                     bar.next()
                     
                     # if DEBUG:
-                        # print(f"Valores dos pixels para o polígono {idx}: {values}. Média: {media_ariticmetica} Valor máximo: {maximo_valor}")
+                        # print(f"Valores dos pixels para o polígono {idx}: {values}. Média: {media_aritmetica} Valor máximo: {maximo_valor}")
                 
                 # Nova linha a ser adicionada
                 nova_linha = {'nome_arquivo': nome_arquivo_solo, 'coluna': chave_coluna_i}
