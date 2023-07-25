@@ -11,19 +11,23 @@ from sklearn.metrics import confusion_matrix
 # Ignorar warnings
 import warnings
 warnings.filterwarnings("ignore")
-#
-# MASCARA_ARQUIVOS_INDICADORES = r"H:\AdaptaBrasil\01_RODOVIA_Adriano\04_BASE_DE_DADOS\**\*.shp"
-# CAMINHO_ARQUIVO_MALHA =  r"H:\AdaptaBrasil\output\indicadores_rodovias01.shp"
-# NOME_ARQUIVO_RELACAO_COLUNAS = r"H:\AdaptaBrasil\output\indicadores_rodovias.xlsx"
-# PATH_IMAGENS_HISTOGRAMA = r'H:\AdaptaBrasil\output\imagens\histogramas'
-# PATH_IMAGENS_MATRIZ_CONFUSAO = r'H:\AdaptaBrasil\output\imagens\matrizes_confusao'
 
-MASCARA_ARQUIVOS_INDICADORES = r"H:\AdaptaBrasil\04_BASE_DE_DADOS_FERROVIAS\**\*.shp"
-CAMINHO_ARQUIVO_MALHA =  r"H:\AdaptaBrasil\output\indicadores_ferrovias.shp"
-NOME_ARQUIVO_RELACAO_COLUNAS = r"H:\AdaptaBrasil\output\indicadores_ferrovias.xlsx"
+
+MASCARA_ARQUIVOS_INDICADORES = r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\02_FERROVIAS_Adriano\04_BASE_DE_DADOS\**\*.shp"
+CAMINHO_ARQUIVO_MALHA =  r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\output\ferrovias\indicadores_ferrovias_em_operacao_vmax.shp"
+NOME_ARQUIVO_RELACAO_COLUNAS = r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\output\ferrovias\indicadores_ferrovias_em_operacao_vmax.xlsx"
+PATH_IMAGENS_HISTOGRAMA = r'D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\imagens\ferrovias\histogramas'
+PATH_IMAGENS_MATRIZ_CONFUSAO = r'D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\imagens\FERROVIAS\matrizes_confusao'
+
+'''
+MASCARA_ARQUIVOS_INDICADORES = r"H:\AdaptaBrasil\01_RODOVIA_Adriano\04_BASE_DE_DADOS\**\*.shp"
+CAMINHO_ARQUIVO_MALHA =  r"H:\AdaptaBrasil\output\indicadores_rodovias.shp"
+NOME_ARQUIVO_RELACAO_COLUNAS = r"H:\AdaptaBrasil\output\indicadores_rodovias.xlsx"
 PATH_IMAGENS_HISTOGRAMA = r'H:\AdaptaBrasil\output\imagens\histogramas'
 PATH_IMAGENS_MATRIZ_CONFUSAO = r'H:\AdaptaBrasil\output\imagens\matrizes_confusao'
+'''
 
+right_cut = False
 #CAMINHO_NOVO_ARQUIVO_MALHA_ATUALIZADO = 'D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\indicadores_rodovias.shp'
 
 """
@@ -108,27 +112,24 @@ if __name__ == "__main__":
     relacao_indicadores = pd.read_excel(NOME_ARQUIVO_RELACAO_COLUNAS)
     for i,fname_indicador in enumerate(arquivos_indicadores):
 
-
         fname_indicador = arquivos_indicadores[i]
 
         print(f"Arquivo {i}/{len(arquivos_indicadores)}: {fname_indicador}")
         nome_arquivo_solo = os.path.basename(fname_indicador).split('.')[0]
-        if os.path.isfile(f"{PATH_IMAGENS_HISTOGRAMA}\{nome_arquivo_solo}.png"):
+        if os.path.isfile(fr"{PATH_IMAGENS_HISTOGRAMA}\{nome_arquivo_solo}.png"):
             continue
         try:
             indicador = gpd.read_file(fname_indicador)
             indicador = indicador.to_crs(CRS.from_epsg(5880))
-
-            coluna_malha = (relacao_indicadores.query(f"nome_arquivo == '{nome_arquivo_solo}'")['coluna']).values[0]
+            nome_arquivo_solo = os.path.basename(fname_indicador).split('.')[0]
+            coluna_malha = (relacao_indicadores.query(f"file_name == '{nome_arquivo_solo}'")['column']).values[0]
             coluna_indicador = encontraColunaIndicador(indicador)
             intersecao = gpd.sjoin(indicadores_malha, indicador, how='inner', op='intersects')
-            # df['Label'] = pd.cut(x=df['Age'], bins=[0, 3, 17, 63, 99],
-            #                      labels=['Baby/Toddler', 'Child', 'Adult',
-            #                              'Elderly'])
+
             intersecao['label_indicador'] = pd.cut(x=intersecao[coluna_indicador], bins=CONFUSION_BINS,
-                                                   labels=CONFUSION_LABELS)
+                                                   labels=CONFUSION_LABELS, right=right_cut)
             intersecao['label_malha'] = pd.cut(x=intersecao[coluna_malha], bins=CONFUSION_BINS,
-                                                   labels=CONFUSION_LABELS)
+                                                   labels=CONFUSION_LABELS, right=right_cut)
             intersecao = intersecao.dropna(subset=['label_indicador', 'label_malha'])
             intersecao['label_indicador'] = intersecao['label_indicador'].values.astype('string')
             intersecao['label_malha'] = intersecao['label_malha'].values.astype('string')
