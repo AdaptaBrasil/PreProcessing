@@ -172,13 +172,13 @@ Este projeto está licenciado sob a Licença MIT. Consulte o arquivo [LICENSE](.
 
 ## Erros Comuns <a name="erros-comuns"></a>
 
-Talvez seja necessário instalar algumas dependências no Linux para o pacote `rtree`:
+Talvez seja necessário instalar algumas dependências no Linux e versões específicas de pacotes:
 
 #### Erro do rtree <a name="erro-do-rtree"></a>
 ```shell
-pip uninstall rtree
+pip3 uninstall rtree
 sudo apt install libspatialindex-dev
-pip install rtree
+pip3 install rtree==1.0.1
 ```
 #### Erro do progress bar <a name="erro-do-progress-bar"></a>
 ```shell
