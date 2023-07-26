@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Example: python3 optimized_merge_shapefiles_mesh.py --mesh_file=malha/ferrovias.shp --indicator_files_mask=indicadores/*.shp --column_relation_file=relacao_arquivos_colunas_malha_rodovias.xlsx --new_mesh_file=indicadores_rodovias.shp --average --debug --output_folder=output/result_shapefiles_mesh
+# Example: python3 merge_shapefiles_mesh.py --mesh_file=local_data/malha/ferrovias.shp --indicator_files_mask=local_data/indicadores/*.shp --column_relation_file=relacao_arquivos_colunas_malha_rodovias.xlsx --new_mesh_file=indicadores_rodovias.shp --average --debug --output_folder=output/result_shapefiles_mesh
 
 # Data manipulation and geospatial libraries
 import pandas as pd
@@ -25,8 +25,6 @@ from progress.bar import Bar
 
 # Ignore warnings
 warnings.filterwarnings("ignore")
-
-
 
 def main(args):
     # Input files with shapefile data for indicators and mesh

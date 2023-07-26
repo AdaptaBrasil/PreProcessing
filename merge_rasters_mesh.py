@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-# Example: python3 merge_rasters_mesh.py --indicator_files_mask=rasters/*.tif --mesh_file=malha/ferrovias.shp --column_relation_file=relacao_arquivos_colunas_malha_rodovias.xlsx --new_mesh_file=indicadores_rodovias.shp --average --debug --output_folder=output/result_rasters_mesh
+# Example: python3 merge_rasters_mesh.py --indicator_files_mask=local_data/rasters/*.tif --mesh_file=local_data/malha/ferrovias.shp --column_relation_file=relacao_arquivos_colunas_malha_rodovias.xlsx --new_mesh_file=indicadores_rodovias.shp --average --debug --output_folder=output/result_rasters_mesh
 
 # Geospatial data processing libraries
 import rasterio as rio

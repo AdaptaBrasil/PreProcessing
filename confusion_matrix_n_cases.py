@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Example: python3 confusion_matrix_n_cases.py --mesh_file=malha/ferrovias.shp  --indicator_files_mask=indicadores/*.shp --indicators_spreadsheet=planilhas/solução_risco_desl_para_matriz.xlsx --debug --output_folder=output/confusion_matrices
+# Example: python3 confusion_matrix_n_cases.py --mesh_file=local_data/malha/ferrovias.shp  --indicator_files_mask=local_data/indicadores/*.shp --indicators_spreadsheet=local_data/planilhas/solução_risco_desl_para_matriz.xlsx --debug --output_folder=output/confusion_matrices
 
 
 import geopandas as gpd
