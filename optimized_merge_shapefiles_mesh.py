@@ -32,6 +32,7 @@ def main(args):
     # Input files with shapefile data for indicators and mesh
     indicator_files_mask = args.indicator_files_mask
     mesh_file_path = args.mesh_file
+    mesh_file_pk = args.mesh_file_pk
     column_relation_file_name = args.column_relation_file
     updated_mesh_file_path = args.new_mesh_file
     is_average = args.average
@@ -139,12 +140,12 @@ def main(args):
             # Calculate the weighted average or maximum value
             if is_average:
                 intersection['weight'] = intersection.geometry.area
-                weighted_avg = intersection.groupby('objectid').apply(
+                weighted_avg = intersection.groupby(mesh_file_pk).apply(
                     lambda x: sum(x['CL_ORIG'] * x['weight']) / sum(x['weight']))
-                mesh[f'I_{i}'] = mesh['objectid'].map(weighted_avg)
+                mesh[f'I_{i}'] = mesh[mesh_file_pk].map(weighted_avg)
             else:
-                max_value = intersection.groupby('objectid')['CL_ORIG'].max()
-                mesh[f'I_{i}'] = mesh['objectid'].map(max_value)
+                max_value = intersection.groupby(mesh_file_pk)['CL_ORIG'].max()
+                mesh[f'I_{i}'] = mesh[mesh_file_pk].map(max_value)
 
             # New row to be added
             new_row = {'file_name': file_name_only, 'column': f'I_{i}'}
@@ -170,6 +171,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mesh_file", required=True,
                         help="Path to the mesh file.")
+    parser.add_argument("--mesh_file_pk", default='object_id',
+                        help="Primary key field name of mesh file.")
     parser.add_argument("--indicator_files_mask", required=True,
                         help="Path to the indicator files mask. The glob function will be used to find the indicator files.")
     parser.add_argument("--column_relation_file", required=True,
