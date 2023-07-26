@@ -7,9 +7,11 @@ from pyproj import CRS
 from shapely.geometry import MultiPolygon, Polygon
 import rasterio as rio
 from rasterio.warp import calculate_default_transform, reproject, Resampling
+import rtree as rt
 
 # Bibliotecas de manipulação de dados
 import pandas as pd
+import openpyxl as xl
 
 # Bibliotecas de visualização
 import seaborn as sns
@@ -17,7 +19,6 @@ import matplotlib.pyplot as plt
 
 # Bibliotecas úteis do sistema
 import os
-from datetime import datetime
 
 # Bibliotecas de aprendizado de máquina e funções de avaliação
 from sklearn.metrics import confusion_matrix
@@ -25,6 +26,22 @@ from sklearn.metrics import confusion_matrix
 # Ignorar warnings
 import warnings
 warnings.filterwarnings("ignore")
+
+def version_all_libraries():
+    # Bibliotecas de processamento de dados geoespaciais
+    print("Geopandas version:", gpd.__version__)
+    print("Rasterio version:", rio.__version__)
+    print("Rtree version:", rt.__version__)
+
+    # Bibliotecas de manipulação de dados
+    print("Pandas version:", pd.__version__)
+    print("Openpyxl version:", xl.__version__)
+
+    # Bibliotecas de visualização
+    print("Seaborn version:", sns.__version__)
+    print("Matplotlib version:", plt.matplotlib.__version__)
+
+# version_all_libraries()
 
 def load_shapefile(path_file_shp, debug=False, change_crs=False, epsg=5880, set_buffer=False):
     # Load shapefile

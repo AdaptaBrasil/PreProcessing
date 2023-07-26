@@ -1,11 +1,6 @@
-indicadores/
-malha/
-output/
 assets/
-temp/
-rasters/
-planilhas/
-
+output/
+local_data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
