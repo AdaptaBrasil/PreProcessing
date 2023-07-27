@@ -101,6 +101,7 @@ python3 generate_histograms_matrices.py --mesh_file=path/to/mesh_file.shp --indi
 - `--indicators_spreadsheet`: Caminho para a planilha Excel que contém a relação dos indicadores com as colunas da malha.
 - `--m`: Parâmetro opcional para gerar as matrizes de confusão.
 - `--h`: Parâmetro opcional para gerar os histogramas.
+- `--right_cut`: Parâmetro opcional para definir o valor máximo do eixo x dos histogramas.
 - `--debug`: Ativar o modo de depuração para exibir informações adicionais.
 - `--output_folder`: Caminho para o diretório onde os arquivos de saída serão salvos.
 
