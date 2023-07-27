@@ -12,10 +12,14 @@ import rtree as rt
 # Bibliotecas de manipulação de dados
 import pandas as pd
 import openpyxl as xl
+import numpy as np
+
 
 # Bibliotecas de visualização
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.ticker import PercentFormatter
+
 
 # Bibliotecas úteis do sistema
 import os
@@ -64,8 +68,32 @@ def load_shapefile(path_file_shp, debug=False, change_crs=False, epsg=5880, set_
         
     return shapefile
 
+def generate_histogram(data: list, title: str, output_file: str):
+
+    def plotting_hist(data: list, title: str):
+        f, ax = plt.subplots(figsize=(6, 6))
+        ax.set_title(label="Histograma \n" + title+'\n')
+
+        values, bins, bars = ax.hist(data,
+                bins=10, weights=np.ones(len(data)) / len(data))
+        plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+        ax.set_ylim([0, 1])
+        ax.set_xlim([-1, 1])
+
+        for bar in bars:
+            height = bar.get_height()
+            x, y = bar.get_xy()
+            ax.text(x + bar.get_width() / 2, height + 5,
+                    f"{height*100:.1f}" if abs(height) > 0.10 else "", ha="center", va="bottom", size=6, fontdict=None)
+
+        plt.savefig(output_file)
+
+    plotting_hist(data, title)
+    plt.clf()
+
 def generate_confusion_matrix(original_class, weighted_class, display_labels: list, indicator: str, output_file: str):
     cfm = confusion_matrix(original_class, weighted_class, normalize='all', labels=display_labels).round(4) * 100
+    # annot=True to annotate cells, ftm='g' to disable scientific notation
     f, ax = plt.subplots(1, 1, figsize=(8, 6))
     sns.heatmap(cfm, annot=True, fmt='g', ax=ax)
 
@@ -98,6 +126,7 @@ def find_indicator_column(patterns, indicator: pd.DataFrame) -> str:
 
 def create_folder_if_not_exists(folder_path):
     if not os.path.exists(folder_path):
+        print("Creating output folder: ", folder_path)
         os.makedirs(folder_path)
 
 def convert_multi_to_single_polygon(geometry):

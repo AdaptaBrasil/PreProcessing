@@ -15,18 +15,25 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
     - [Requisitos](#requisitos)
     - [Instalação](#instalação)
     - [Uso](#uso)
-  - [Matriz de Confusão para N Casos](#matriz-de-confusão-para-n-casos)
+  - [Geração de Histogramas e Matrizes de Confusão](#geração-de-histogramas-e-matrizes-de-confusão)
     - [Requisitos](#requisitos-1)
     - [Como usar](#como-usar)
     - [Funcionamento](#funcionamento)
     - [Observações](#observações)
     - [Saída](#saída)
     - [Exemplo de Uso](#exemplo-de-uso)
-  - [Merge de Indicadores Rasters em Malha](#merge-de-indicadores-rasters-em-malha)
+  - [Matriz de Confusão para N Casos](#matriz-de-confusão-para-n-casos)
     - [Requisitos](#requisitos-2)
+    - [Como usar](#como-usar-1)
+    - [Funcionamento](#funcionamento-1)
+    - [Observações](#observações-1)
+    - [Saída](#saída-1)
+    - [Exemplo de Uso](#exemplo-de-uso-1)
+  - [Merge de Indicadores Rasters em Malha](#merge-de-indicadores-rasters-em-malha)
+    - [Requisitos](#requisitos-3)
     - [Instalação](#instalação-1)
     - [Uso](#uso-1)
-    - [Saída](#saída-1)
+    - [Saída](#saída-2)
   - [Licença ](#licença-)
   - [Erros Comuns ](#erros-comuns-)
       - [Erro do rtree ](#erro-do-rtree-)
@@ -73,6 +80,65 @@ python3 merge_indicadores_malha.py --mascara_indicadores=indicadores/*.shp --arq
 
 Certifique-se de fornecer os caminhos corretos para os arquivos indicadores, arquivo de malha, arquivo de relação de colunas e o novo arquivo de malha atualizado.
 
+## Geração de Histogramas e Matrizes de Confusão
+
+### Requisitos
+- Python 3.x
+- Bibliotecas listadas no arquivo `requirements.txt`
+- Shapefile da malha (arquivo .shp)
+- Shapefiles dos indicadores (arquivos .shp)
+- Planilha de relação dos indicadores com as colunas da malha (arquivo .xlsx)
+
+### Como usar
+O script `generate_histograms_matrices.py` é utilizado para gerar histogramas e matrizes de confusão a partir de dados geoespaciais contidos em shapefiles. Ele aceita os seguintes argumentos:
+
+```bash
+python3 generate_histograms_matrices.py --mesh_file=path/to/mesh_file.shp --indicator_files_mask=path/to/indicator_files/*.shp --indicators_spreadsheet=path/to/indicators_spreadsheet.xlsx --m --h --debug --output_folder=path/to/output_folder
+```
+
+- `--mesh_file`: Caminho para o arquivo shapefile da malha.
+- `--indicator_files_mask`: Caminho para o diretório contendo os shapefiles dos indicadores, que será usado com a função glob para encontrar os arquivos.
+- `--indicators_spreadsheet`: Caminho para a planilha Excel que contém a relação dos indicadores com as colunas da malha.
+- `--m`: Parâmetro opcional para gerar as matrizes de confusão.
+- `--h`: Parâmetro opcional para gerar os histogramas.
+- `--debug`: Ativar o modo de depuração para exibir informações adicionais.
+- `--output_folder`: Caminho para o diretório onde os arquivos de saída serão salvos.
+
+### Funcionamento
+O script realiza o processamento dos indicadores e da malha para gerar as matrizes de confusão e histogramas.
+
+ Ele executa as seguintes etapas:
+
+1. Carrega as bibliotecas e realiza os imports necessários.
+2. Carrega os parâmetros passados na linha de comando.
+3. Cria os diretórios de saída caso não existam.
+4. Encontra os arquivos dos indicadores usando a função glob.
+5. Carrega a malha e os indicadores a partir dos arquivos shapefile.
+6. Realiza a transformação da malha para o CRS padrão (5880).
+7. Verifica a relação entre os indicadores e as colunas da malha.
+8. Define padrões para encontrar a coluna do indicador.
+9. Realiza a junção (interseção) entre a malha e os indicadores.
+10. Define os intervalos de bins para as matrizes de confusão.
+11. Gera as matrizes de confusão e os histogramas para cada indicador.
+12. Salva os resultados nos diretórios de saída.
+
+### Observações
+- Certifique-se de que o ambiente Python tenha as bibliotecas necessárias instaladas. Caso não tenha, você pode instalar as dependências listadas no arquivo `requirements.txt`.
+- O script suporta apenas arquivos shapefile (.shp) para a malha e os indicadores e uma planilha Excel (.xlsx) para a relação entre os indicadores e as colunas da malha.
+
+### Saída
+O script gera dois tipos de saída:
+
+1. Matrizes de Confusão: São salvas no diretório `confusion_matrices` dentro do diretório de saída definido.
+2. Histogramas: São salvos no diretório `histograms` dentro do diretório de saída definido.
+
+### Exemplo de Uso
+```bash
+python3 generate_histograms_matrices.py --mesh_file=data/mesh/mesh_file.shp --indicator_files_mask=data/indicators/*.shp --indicators_spreadsheet=data/planilhas/indicators_spreadsheet.xlsx --m --h --debug --output_folder=output/result_histograms_matrices
+```
+
+Neste exemplo, o script será executado com o arquivo shapefile da malha em `data/mesh/mesh_file.shp`, os shapefiles dos indicadores em `data/indicators/*.shp`, a planilha de relação dos indicadores em `data/planilhas/indicators_spreadsheet.xlsx`, e irá gerar as matrizes de confusão e os histogramas em `output/result_histograms_matrices`.
+
 ## Matriz de Confusão para N Casos
 
 Este código permite gerar a matriz de confusão para N casos, comparando os valores estimados de indicadores espaciais com os valores originais. Ele utiliza arquivos shapefiles que contêm informações espaciais e colunas de valores dos indicadores. Além disso, o código requer uma planilha que relaciona os indicadores às colunas utilizadas na matriz de confusão.
@@ -116,9 +182,7 @@ Para cada indicador, o script faz o merge com a malha e realiza a interseção p
 python3 matriz_confusao_n_casos.py --arquivo_malha=malha/ferrovias.shp --mascara_indicadores=indicadores/*.shp --planilha_indicadores=planilhas/solução_risco_desl_para_matriz.xlsx
 ```
 
-Esse comando realiza a geração da matriz de confusão para os indicadores contidos na pasta `indicadores/`, utilizando o arquivo de malha `malha/ferrovias.shp`. As informações sobre os indicadores e colunas utilizadas são lidas a partir da planilha `solução_risco_desl_para_matriz.xlsx`. As imagens da
-
- matriz de confusão são salvas no diretório `output/`.
+Esse comando realiza a geração da matriz de confusão para os indicadores contidos na pasta `indicadores/`, utilizando o arquivo de malha `malha/ferrovias.shp`. As informações sobre os indicadores e colunas utilizadas são lidas a partir da planilha `solução_risco_desl_para_matriz.xlsx`. As imagens da matriz de confusão são salvas no diretório `output/`.
 
 ## Merge de Indicadores Rasters em Malha
 
@@ -137,7 +201,9 @@ Você pode instalar as bibliotecas necessárias executando o seguinte comando:
 pip install -r requirements.txt
 ```
 
-Isso irá instalar todas as dependências listadas no arquivo `requirements.txt`.
+Isso ir
+
+á instalar todas as dependências listadas no arquivo `requirements.txt`.
 
 ### Instalação
 
