@@ -13,11 +13,11 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-MASCARA_ARQUIVOS_INDICADORES = r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\02_FERROVIAS_Adriano\04_BASE_DE_DADOS\**\*.shp"
-CAMINHO_ARQUIVO_MALHA =  r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\output\ferrovias\indicadores_ferrovias_em_operacao_vmax.shp"
-NOME_ARQUIVO_RELACAO_COLUNAS = r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\output\ferrovias\indicadores_ferrovias_em_operacao_vmax.xlsx"
-PATH_IMAGENS_HISTOGRAMA = r'D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\imagens\ferrovias\histogramas'
-PATH_IMAGENS_MATRIZ_CONFUSAO = r'D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\imagens\FERROVIAS\matrizes_confusao'
+MASCARA_ARQUIVOS_INDICADORES = r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\01_RODOVIA_Adriano\04_BASE_DE_DADOS\**\*.shp"
+CAMINHO_ARQUIVO_MALHA =  r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\output\rodovias\indicadores_rodovias_em_operacao.shp"
+NOME_ARQUIVO_RELACAO_COLUNAS = r"D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\output\rodovias\indicadores_rodovias_em_operacao.xlsx"
+PATH_IMAGENS_HISTOGRAMA = r'D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\imagens\rodovias\histogramas'
+PATH_IMAGENS_MATRIZ_CONFUSAO = r'D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\imagens\rodovias\matriz_confusao'
 
 '''
 MASCARA_ARQUIVOS_INDICADORES = r"H:\AdaptaBrasil\01_RODOVIA_Adriano\04_BASE_DE_DADOS\**\*.shp"
@@ -65,7 +65,7 @@ def histogram(data: list, title: str):
 
         rects = ax.patches
         labels = []
-        for value in bars.datavalues:
+        for value in bars:
             labels.append(f"{value/len(data)*100:.1f}" if abs(value/len(data)) > 0.10 else "")
         for rect, label in zip(rects, labels):
             height = rect.get_height()
