@@ -11,44 +11,48 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
 - [Projeto: Análise Espacial de Indicadores](#projeto-análise-espacial-de-indicadores)
   - [Introdução](#introdução)
   - [Menu](#menu)
-  - [Merge de Indicadores em Malha](#merge-de-indicadores-em-malha)
+  - [Merge de Indicadores Shapefiles em Malha](#merge-de-indicadores-shapefiles-em-malha)
     - [Requisitos](#requisitos)
-    - [Instalação](#instalação)
-    - [Uso](#uso)
-  - [Geração de Histogramas e Matrizes de Confusão](#geração-de-histogramas-e-matrizes-de-confusão)
-    - [Requisitos](#requisitos-1)
     - [Como usar](#como-usar)
     - [Funcionamento](#funcionamento)
     - [Observações](#observações)
     - [Saída](#saída)
     - [Exemplo de Uso](#exemplo-de-uso)
-  - [Matriz de Confusão para N Casos](#matriz-de-confusão-para-n-casos)
-    - [Requisitos](#requisitos-2)
+  - [Merge de Indicadores Rasters em Malha](#merge-de-indicadores-rasters-em-malha)
+    - [Requisitos](#requisitos-1)
     - [Como usar](#como-usar-1)
     - [Funcionamento](#funcionamento-1)
     - [Observações](#observações-1)
     - [Saída](#saída-1)
     - [Exemplo de Uso](#exemplo-de-uso-1)
-  - [Merge de Indicadores Rasters em Malha](#merge-de-indicadores-rasters-em-malha)
-    - [Requisitos](#requisitos-3)
-    - [Instalação](#instalação-1)
-    - [Uso](#uso-1)
+  - [Geração de Histogramas e Matrizes de Confusão](#geração-de-histogramas-e-matrizes-de-confusão)
+    - [Requisitos](#requisitos-2)
+    - [Como usar](#como-usar-2)
+    - [Funcionamento](#funcionamento-2)
+    - [Observações](#observações-2)
     - [Saída](#saída-2)
+    - [Exemplo de Uso](#exemplo-de-uso-2)
+  - [Matriz de Confusão para N Casos](#matriz-de-confusão-para-n-casos)
+    - [Requisitos](#requisitos-3)
+    - [Como usar](#como-usar-3)
+    - [Funcionamento](#funcionamento-3)
+    - [Observações](#observações-3)
+    - [Saída](#saída-3)
+    - [Exemplo de Uso](#exemplo-de-uso-3)
   - [Licença ](#licença-)
   - [Erros Comuns ](#erros-comuns-)
       - [Erro do rtree ](#erro-do-rtree-)
       - [Erro do progress bar ](#erro-do-progress-bar-)
 
-## Merge de Indicadores em Malha
+## Merge de Indicadores Shapefiles em Malha
 
-Este repositório contém um script Python chamado `merge_indicadores_malha.py` que realiza a junção de indicadores em uma malha geoespacial. O script utiliza a biblioteca `geopandas` para manipulação de dados espaciais e `pandas` para manipulação de dados tabulares.
+Este script Python, chamado `merge_shapefiles_mesh.py`, permite realizar o merge de indicadores armazenados em arquivos Shapefile com uma malha geoespacial. O script utiliza diversas bibliotecas Python, como `pandas`, `geopandas`, `pyproj`, entre outras, para manipulação e processamento dos dados espaciais e tabulares.
 
 ### Requisitos
-
 Certifique-se de ter os seguintes requisitos instalados:
 
 - Python 3
-- Bibliotecas Python: `pandas`, `geopandas`, `pyproj`
+- Bibliotecas Python: `pandas`, `geopandas`, `pyproj`, `glob3`, `progress`
 
 Você pode instalar as bibliotecas necessárias executando o seguinte comando:
 
@@ -56,29 +60,112 @@ Você pode instalar as bibliotecas necessárias executando o seguinte comando:
 pip install -r requirements.txt
 ```
 
-Isso irá instalar todas as dependências listadas no arquivo `requirements.txt`.
+### Como usar
 
-### Instalação
-
-1. Clone este repositório para o seu ambiente local.
-2. Navegue até o diretório do repositório.
-
-### Uso
-
-Execute o script `merge_indicadores_malha.py` passando os argumentos necessários. O script requer os seguintes argumentos:
-
-- `--mascara_indicadores`: Caminho para a máscara de arquivos indicadores. Será usado o `glob` para encontrar os arquivos indicadores.
-- `--arquivo_malha`: Caminho do arquivo de malha.
-- `--arquivo_relacao`: Caminho do arquivo de relação de colunas.
-- `--nova_malha`: Caminho do novo arquivo de malha atualizado.
-
-Aqui está um exemplo de como executar o script:
+Para executar o script, utilize o seguinte comando:
 
 ```shell
-python3 merge_indicadores_malha.py --mascara_indicadores=indicadores/*.shp --arquivo_malha=malha/ferrovias.shp --arquivo_relacao=relacao_arquivos_colunas_malha_rodovias.xlsx --nova_malha=indicadores_rodovias.shp
+python3 merge_shapefiles_mesh.py --mesh_file=<mesh_file_path> --mesh_file_pk=<mesh_file_pk> --indicator_files_mask=<indicator_files_mask> --column_relation_file=<column_relation_file_name> --new_mesh_file=<updated_mesh_file_path> --average --debug --output_folder=<output_folder_path>
 ```
 
-Certifique-se de fornecer os caminhos corretos para os arquivos indicadores, arquivo de malha, arquivo de relação de colunas e o novo arquivo de malha atualizado.
+- `--mesh_file`: Caminho para o arquivo Shapefile que contém a malha geoespacial.
+- `--mesh_file_pk`: Nome do campo que serve como chave primária (ID) na malha.
+- `--indicator_files_mask`: Caminho para a máscara de arquivos dos indicadores. O script usará a função `glob` para encontrar os arquivos indicadores.
+- `--column_relation_file`: Caminho para o arquivo que contém a relação entre os nomes dos arquivos indicadores e as colunas associadas na malha.
+- `--new_mesh_file`: Caminho para o novo arquivo Shapefile atualizado, que conterá as informações dos indicadores raster agregados aos polígonos da malha geoespacial.
+- `--average`: Parâmetro opcional para calcular a média dos valores dos pixels dentro de cada polígono da malha. Se não for fornecido, o valor máximo será considerado.
+- `--debug`: Parâmetro opcional para ativar o modo de depuração, exibindo informações adicionais durante a execução.
+- `--output_folder`: Caminho para o diretório onde os arquivos de saída serão salvos. O diretório será criado caso não exista.
+
+### Funcionamento
+
+O script realiza o seguinte processo:
+
+1. Carrega a malha geoespacial a partir do arquivo Shapefile especificado.
+2. Verifica se existe um arquivo de relação de colunas. Se não existir, cria um novo.
+3. Procura e carrega os arquivos dos indicadores (Shapefiles) baseados na máscara fornecida.
+4. Itera sobre cada arquivo de indicador, realizando as etapas de pré-processamento e junção (interseção) com a malha.
+5. Calcula a média ponderada ou o valor máximo dos indicadores para cada polígono da malha, dependendo do valor do parâmetro `--average`.
+6. Atualiza a malha com os novos valores dos indicadores.
+7. Salva o novo arquivo da malha atualizado e o arquivo de relação de colunas.
+
+### Observações
+
+- Certifique-se de que o ambiente Python tenha as bibliotecas necessárias instaladas. Caso não tenha, você pode instalar as dependências listadas anteriormente.
+- O script suporta apenas arquivos Shapefile (.shp) para a malha e os indicadores.
+
+### Saída
+
+A saída deste script inclui a criação de um novo arquivo Shapefile atualizado, contendo as informações dos indicadores raster agregados aos polígonos da malha geoespacial. Além disso, é gerado um arquivo de relação de colunas, no formato Excel, que mostra a correspondência entre os nomes dos arquivos indicadores e as colunas associadas na malha. Durante a execução, o script também apresenta informações sobre o progresso do processamento, incluindo o número de arquivos de indicadores processados e o tempo decorrido. Eventuais erros e exceções são mostrados para facilitar a depuração e o ajuste necessário no processo de mesclagem.
+
+### Exemplo de Uso
+
+```shell
+python3 merge_shapefiles_mesh.py --mesh_file=local_data/malha/ferrovias.shp --mesh_file_pk=object_id --indicator_files_mask=local_data/indicadores/*.shp --column_relation_file=relacao_arquivos_colunas_malha_rodovias.xlsx --new_mesh_file=indicadores_rodovias.shp --average --debug --output_folder=output/result_shapefiles_mesh
+```
+
+Neste exemplo, o script será executado com o arquivo Shapefile da malha em `local_data/malha/ferrovias.shp`, usando o campo `object_id` como chave primária na malha. Os arquivos indicadores serão procurados na pasta `local_data/indicadores/`, e as informações sobre os indicadores e as colunas utilizadas serão lidas a partir do arquivo `relacao_arquivos_colunas_malha_rodovias.xlsx`. O novo arquivo Shapefile da malha atualizada será salvo em `output/result_shapefiles_mesh`, com a opção de calcular a média dos valores dos pixels dentro de cada polígono ativada (`--average`). O modo de depuração será ativado para exibir informações adicionais durante a execução (`--debug`).
+
+## Merge de Indicadores Rasters em Malha
+
+Este script Python, denominado `merge_rasters_mesh.py`, permite realizar o merge de indicadores armazenados em arquivos Raster com uma malha geoespacial. O script utiliza bibliotecas Python como `rasterio`, `numpy`, `pandas`, `cv2` (OpenCV), entre outras, para processar dados espaciais e tabulares.
+
+### Requisitos
+Certifique-se de ter os seguintes requisitos instalados:
+
+- Python 3
+- Bibliotecas Python: `rasterio`, `numpy`, `pandas`, `opencv-python-headless`, `progress`, `pyproj`
+
+Você pode instalar as bibliotecas necessárias executando o seguinte comando:
+
+```shell
+pip install -r requirements.txt
+```
+
+### Como usar
+
+Para executar o script, utilize o seguinte comando:
+
+```shell
+python3 merge_rasters_mesh.py --indicator_files_mask=<indicator_files_mask> --mesh_file=<mesh_file_path> --column_relation_file=<column_relation_file_name> --new_mesh_file=<updated_mesh_file_path> --average --debug --output_folder=<output_folder_path>
+```
+
+- `--indicator_files_mask`: Caminho para a máscara de arquivos dos indicadores. A função `glob` será usada para encontrar os arquivos indicadores. Exemplo: `directory/*.tif`.
+- `--mesh_file`: Caminho para o arquivo Shapefile que contém a malha geoespacial. Exemplo: `mesh.shp`.
+- `--column_relation_file`: Caminho para o arquivo que contém a relação entre os nomes dos arquivos indicadores e as colunas associadas na malha. Exemplo: `relation.xlsx`.
+- `--new_mesh_file`: Caminho para o novo arquivo Shapefile atualizado, que conterá as informações dos indicadores Raster agregados aos polígonos da malha geoespacial. Exemplo: `new_updated_mesh.shp`.
+- `--average`: Parâmetro opcional para calcular a média dos valores dos pixels dentro de cada polígono da malha. Se não for fornecido, o valor máximo será considerado.
+- `--debug`: Parâmetro opcional para ativar o modo de depuração, exibindo informações adicionais durante a execução.
+- `--output_folder`: Caminho para o diretório onde os arquivos de saída serão salvos. O diretório será criado caso não exista.
+
+### Funcionamento
+
+O script realiza o seguinte processo:
+
+1. Carrega a malha geoespacial a partir do arquivo Shapefile especificado.
+2. Verifica se existe um arquivo de relação de colunas. Se não existir, cria um novo.
+3. Procura e carrega os arquivos dos indicadores Raster baseados na máscara fornecida.
+4. Itera sobre cada arquivo de indicador Raster, realizando as etapas de pré-processamento e junção com a malha geoespacial.
+5. Calcula a média ponderada ou o valor máximo dos indicadores para cada polígono da malha, dependendo do valor do parâmetro `--average`.
+6. Atualiza a malha com os novos valores dos indicadores.
+7. Salva o novo arquivo da malha atualizado e o arquivo de relação de colunas.
+
+### Observações
+
+- Certifique-se de que o ambiente Python tenha as bibliotecas necessárias instaladas. Caso não tenha, você pode instalar as dependências listadas anteriormente.
+- O script suporta apenas arquivos Raster (.tif) para os indicadores e arquivos Shapefile (.shp) para a malha.
+
+### Saída
+
+A saída deste script inclui a criação de um novo arquivo Shapefile atualizado, contendo as informações dos indicadores Raster agregados aos polígonos da malha geoespacial. Além disso, é gerado um arquivo de relação de colunas, no formato Excel, que mostra a correspondência entre os nomes dos arquivos indicadores e as colunas associadas na malha. Durante a execução, o script também apresenta informações sobre o progresso do processamento, incluindo o número de arquivos de indicadores processados e o tempo decorrido. Eventuais erros e exceções são mostrados para facilitar a depuração e o ajuste necessário no processo de mesclagem.
+
+### Exemplo de Uso
+
+```shell
+python3 merge_rasters_mesh.py --indicator_files_mask=local_data/rasters/*.tif --mesh_file=local_data/malha/ferrovias.shp --column_relation_file=relacao_arquivos_colunas_malha_rodovias.xlsx --new_mesh_file=indicadores_rodovias.shp --average --debug --output_folder=output/result_rasters_mesh
+```
+
+Neste exemplo, o script será executado com a máscara `local_data/rasters/*.tif` para encontrar os arquivos indicadores Raster na pasta `local_data/rasters/`, utilizando o arquivo Shapefile da malha em `local_data/malha/ferrovias.shp`. As informações sobre os indicadores e as colunas utilizadas serão lidas a partir do arquivo `relacao_arquivos_colunas_malha_rodovias.xlsx`. O novo arquivo Shapefile da malha atualizada será salvo em `output/result_rasters_mesh`, com a opção de calcular a média dos valores dos pixels dentro de cada polígono ativada (`--average`). O modo de depuração será ativado para exibir informações adicionais durante a execução (`--debug`).
 
 ## Geração de Histogramas e Matrizes de Confusão
 
@@ -185,53 +272,7 @@ python3 matriz_confusao_n_casos.py --arquivo_malha=malha/ferrovias.shp --mascara
 
 Esse comando realiza a geração da matriz de confusão para os indicadores contidos na pasta `indicadores/`, utilizando o arquivo de malha `malha/ferrovias.shp`. As informações sobre os indicadores e colunas utilizadas são lidas a partir da planilha `solução_risco_desl_para_matriz.xlsx`. As imagens da matriz de confusão são salvas no diretório `output/`.
 
-## Merge de Indicadores Rasters em Malha
 
-Este script Python, chamado `merge_rasters_malha.py`, permite a realização do merge de indicadores raster em uma malha geoespacial. O código utiliza bibliotecas como `geopandas`, `rasterio`, `numpy`, `cv2`, `pandas`, entre outras, para manipulação e processamento dos dados espaciais e tabulares.
-
-### Requisitos
-
-Certifique-se de ter os seguintes requisitos instalados:
-
-- Python 3
-- Bibliotecas Python: `pandas`, `geopandas`, `pyproj`, `rasterio`
-
-Você pode instalar as bibliotecas necessárias executando o seguinte comando:
-
-```shell
-pip install -r requirements.txt
-```
-
-Isso ir
-
-á instalar todas as dependências listadas no arquivo `requirements.txt`.
-
-### Instalação
-
-1. Clone este repositório para o seu ambiente local.
-2. Navegue até o diretório do repositório.
-
-### Uso
-
-Execute o script `merge_rasters_malha.py` passando os argumentos necessários. O script requer os seguintes argumentos:
-
-- `--mascara_indicadores`: Caminho para a máscara de arquivos indicadores. Será usado o `glob` para encontrar os arquivos indicadores.
-- `--arquivo_malha`: Caminho do arquivo de malha.
-- `--arquivo_relacao`: Caminho do arquivo de relação de colunas.
-- `--nova_malha`: Caminho do novo arquivo de malha atualizado.
-- `--media`: Opção para realizar a média dos valores dos pixels dentro de cada polígono da malha. Se não for fornecida, o valor máximo será considerado.
-
-Aqui está um exemplo de como executar o script:
-
-```shell
-python3 merge_rasters_malha.py --mascara_indicadores=rasters/*.tif --arquivo_malha=malha/ferrovias.shp --arquivo_relacao=relacao_arquivos_colunas_malha_rodovias.xlsx --nova_malha=indicadores_rodovias.shp --media
-```
-
-Certifique-se de fornecer os caminhos corretos para os arquivos indicadores, arquivo de malha, arquivo de relação de colunas e o novo arquivo de malha atualizado.
-
-### Saída
-
-A saída deste script inclui a criação de um novo arquivo de malha atualizado, contendo as informações dos indicadores raster agregados aos polígonos da malha geoespacial. Além disso, é gerado um arquivo de relação de colunas, no formato Excel, que mostra a correspondência entre o nome dos arquivos indicadores e as colunas associadas na malha. Durante a execução, o script também apresenta informações sobre o progresso do processamento, incluindo o número de polígonos processados e o tempo decorrido. Eventuais erros e exceções são mostrados para facilitar a depuração e o ajuste necessário no processo de mesclagem. Ao final da execução bem-sucedida, uma mensagem indica que a nova malha atualizada e o arquivo de relação de colunas foram salvos nos respectivos caminhos especificados.
 
 ## Licença <a name="licenca"></a>
 
