@@ -39,6 +39,14 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
     - [Observações](#observações-3)
     - [Saída](#saída-3)
     - [Exemplo de Uso](#exemplo-de-uso-3)
+  - [Geração de legendas QML para CSV](#geração-de-legendas-qml-para-csv)
+    - [Descrição](#descrição)
+    - [Requisitos](#requisitos-4)
+    - [Como usar](#como-usar-4)
+    - [Funcionamento](#funcionamento-4)
+    - [Observações](#observações-4)
+    - [Saída](#saída-4)
+    - [Exemplo de Uso](#exemplo-de-uso-4)
   - [Licença ](#licença-)
   - [Erros Comuns ](#erros-comuns-)
       - [Erro do rtree ](#erro-do-rtree-)
@@ -272,7 +280,64 @@ python3 matriz_confusao_n_casos.py --arquivo_malha=malha/ferrovias.shp --mascara
 
 Esse comando realiza a geração da matriz de confusão para os indicadores contidos na pasta `indicadores/`, utilizando o arquivo de malha `malha/ferrovias.shp`. As informações sobre os indicadores e colunas utilizadas são lidas a partir da planilha `solução_risco_desl_para_matriz.xlsx`. As imagens da matriz de confusão são salvas no diretório `output/`.
 
+## Geração de legendas QML para CSV
 
+Este repositório contém um script Python chamado `generate_legends.py` que permite a geração de legendas QML para um arquivo CSV. O script analisa os arquivos QML, que contêm informações de estilo para representação de dados geoespaciais, e extrai as informações relevantes para criar uma tabela em formato CSV.
+
+### Descrição
+
+O script `generate_legends.py` é usado para processar arquivos QML e extrair informações de estilo, como cores e valores mínimos e máximos de legendas. Esses dados são então organizados em uma tabela CSV que pode ser usada para criar legendas em visualizações de dados geoespaciais.
+
+### Requisitos
+
+Certifique-se de ter os seguintes requisitos instalados:
+
+- Python 3.x
+- Bibliotecas Python: `pandas`
+
+Você pode instalar as bibliotecas necessárias executando o seguinte comando:
+
+```shell
+pip install -r requeriments.txt
+```
+
+### Como usar
+
+Execute o script `generate_legends.py` passando os argumentos necessários. O script requer os seguintes argumentos:
+
+- `--qml_files`: Caminho para o diretório onde os arquivos QML estão localizados. Use padrões glob para encontrar os arquivos QML.
+- `--debug`: Ativa o modo de depuração.
+- `--output_folder`: Caminho para o diretório onde os arquivos gerados serão salvos.
+- `--output_file`: Nome do arquivo de saída.
+
+Aqui está um exemplo de como executar o script:
+
+```shell
+python3 generate_legends.py --qml_files=local_data/qml/**/*.qml --debug --output_folder=output/export_legends --output_file=legends_indicators.csv
+```
+
+Certifique-se de fornecer os caminhos corretos para os arquivos QML, o diretório de saída e o nome do arquivo de saída.
+
+### Funcionamento
+
+O script começa lendo os argumentos fornecidos e iniciando o processamento. Ele utiliza a biblioteca `xml.etree.ElementTree` para analisar os arquivos QML e extrair informações relevantes, como as cores dos símbolos e os valores das legendas. As informações extraídas são então organizadas em uma tabela CSV.
+
+### Observações
+
+- O modo de depuração (`--debug`) fornece informações adicionais durante a execução do script, facilitando a verificação do progresso e dos resultados.
+- O script cria uma pasta de saída especificada, se ela ainda não existir.
+
+### Saída
+
+A saída deste script é um arquivo CSV que contém as informações de estilo extraídas dos arquivos QML. O arquivo CSV terá as colunas: 'id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id', 'indicator', 'tag', 'order'.
+
+### Exemplo de Uso
+
+```
+python3 generate_legends.py --qml_files=local_data/qml/**/*.qml --debug --output_folder=output/export_legends --output_file=legends_indicators.csv
+```
+
+Esse comando processará os arquivos QML encontrados no diretório `local_data/qml/` e seus subdiretórios, ativando o modo de depuração. Os resultados serão salvos na pasta `output/export_legends` com o nome do arquivo de saída `legends_indicators.csv`.
 
 ## Licença <a name="licenca"></a>
 
