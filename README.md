@@ -40,7 +40,6 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
     - [Saída](#saída-3)
     - [Exemplo de Uso](#exemplo-de-uso-3)
   - [Geração de legendas QML para CSV](#geração-de-legendas-qml-para-csv)
-    - [Descrição](#descrição)
     - [Requisitos](#requisitos-4)
     - [Como usar](#como-usar-4)
     - [Funcionamento](#funcionamento-4)
@@ -281,10 +280,6 @@ python3 matriz_confusao_n_casos.py --arquivo_malha=malha/ferrovias.shp --mascara
 Esse comando realiza a geração da matriz de confusão para os indicadores contidos na pasta `indicadores/`, utilizando o arquivo de malha `malha/ferrovias.shp`. As informações sobre os indicadores e colunas utilizadas são lidas a partir da planilha `solução_risco_desl_para_matriz.xlsx`. As imagens da matriz de confusão são salvas no diretório `output/`.
 
 ## Geração de legendas QML para CSV
-
-Este repositório contém um script Python chamado `generate_legends.py` que permite a geração de legendas QML para um arquivo CSV. O script analisa os arquivos QML, que contêm informações de estilo para representação de dados geoespaciais, e extrai as informações relevantes para criar uma tabela em formato CSV.
-
-### Descrição
 
 O script `generate_legends.py` é usado para processar arquivos QML e extrair informações de estilo, como cores e valores mínimos e máximos de legendas. Esses dados são então organizados em uma tabela CSV que pode ser usada para criar legendas em visualizações de dados geoespaciais.
 
