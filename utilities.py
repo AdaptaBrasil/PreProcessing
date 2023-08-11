@@ -47,6 +47,17 @@ def version_all_libraries():
 
 # version_all_libraries()
 
+def convert_to_hexadecimal(color_str):
+    rgba_values = color_str.split(',')
+    
+    if len(rgba_values) != 4:
+        return None
+    
+    r, g, b, a = map(int, rgba_values)
+    hex_color = "#{:02X}{:02X}{:02X}".format(r, g, b)
+    
+    return hex_color
+
 def load_shapefile(path_file_shp, debug=False, change_crs=False, epsg=5880, set_buffer=False):
     # Load shapefile
     shapefile = gpd.read_file(path_file_shp)
