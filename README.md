@@ -39,13 +39,21 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
     - [Observações](#observações-3)
     - [Saída](#saída-3)
     - [Exemplo de Uso](#exemplo-de-uso-3)
-  - [Geração de legendas QML para CSV](#geração-de-legendas-qml-para-csv)
+  - [Geração de Legendas QML para CSV](#geração-de-legendas-qml-para-csv)
     - [Requisitos](#requisitos-4)
     - [Como usar](#como-usar-4)
     - [Funcionamento](#funcionamento-4)
     - [Observações](#observações-4)
     - [Saída](#saída-4)
     - [Exemplo de Uso](#exemplo-de-uso-4)
+  - [Geração de Legendas XLSX para CSV](#geração-de-legendas-xlsx-para-csv)
+    - [Descrição](#descrição)
+    - [Requisitos](#requisitos-5)
+    - [Como usar](#como-usar-5)
+    - [Funcionamento](#funcionamento-5)
+    - [Observações](#observações-5)
+    - [Saída](#saída-5)
+    - [Exemplo de Uso](#exemplo-de-uso-5)
   - [Licença ](#licença-)
   - [Erros Comuns ](#erros-comuns-)
       - [Erro do rtree ](#erro-do-rtree-)
@@ -279,7 +287,7 @@ python3 matriz_confusao_n_casos.py --arquivo_malha=malha/ferrovias.shp --mascara
 
 Esse comando realiza a geração da matriz de confusão para os indicadores contidos na pasta `indicadores/`, utilizando o arquivo de malha `malha/ferrovias.shp`. As informações sobre os indicadores e colunas utilizadas são lidas a partir da planilha `solução_risco_desl_para_matriz.xlsx`. As imagens da matriz de confusão são salvas no diretório `output/`.
 
-## Geração de legendas QML para CSV
+## Geração de Legendas QML para CSV
 
 O script `generate_legends.py` é usado para processar arquivos QML e extrair informações de estilo, como cores e valores mínimos e máximos de legendas. Esses dados são então organizados em uma tabela CSV que pode ser usada para criar legendas em visualizações de dados geoespaciais.
 
@@ -333,6 +341,66 @@ python3 generate_legends.py --qml_files=local_data/qml/**/*.qml --debug --output
 ```
 
 Esse comando processará os arquivos QML encontrados no diretório `local_data/qml/` e seus subdiretórios, ativando o modo de depuração. Os resultados serão salvos na pasta `output/export_legends` com o nome do arquivo de saída `legends_indicators.csv`.
+
+## Geração de Legendas XLSX para CSV
+
+Este repositório contém um script Python chamado `generate_legends_from_xlsx.py` que permite a geração de legendas em formato CSV a partir de arquivos XLSX. O script processa arquivos XLSX que contêm informações sobre a formatação de legendas e as converte em uma tabela em formato CSV.
+
+### Descrição
+
+O script `generate_legends_from_xlsx.py` é usado para processar arquivos XLSX que contêm informações de formatação para legendas. Ele analisa esses arquivos, extrai informações relevantes e as organiza em uma tabela CSV que pode ser usada para gerar legendas em visualizações de dados geoespaciais.
+
+### Requisitos
+
+Certifique-se de ter os seguintes requisitos instalados:
+
+- Python 3.x
+- Bibliotecas Python: `pandas`
+
+Você pode instalar as bibliotecas necessárias executando o seguinte comando:
+
+```shell
+pip install -r requeriments.txt
+```
+
+### Como usar
+
+Execute o script `generate_legends_from_xlsx.py` passando os argumentos necessários. O script requer os seguintes argumentos:
+
+- `--xlsx_files`: Caminho para o diretório onde os arquivos XLSX estão localizados. Use padrões glob para encontrar os arquivos XLSX.
+- `--debug`: Ativa o modo de depuração.
+- `--settings_labels`: Nome do arquivo `settings_labels.csv` que contém informações sobre as legendas (rótulos, cores, ordem e tags).
+- `--output_folder`: Caminho para o diretório onde os arquivos gerados serão salvos.
+- `--output_file`: Nome do arquivo de saída.
+
+Aqui está um exemplo de como executar o script:
+
+```shell
+python3 generate_legends_from_xlsx.py --xlsx_files=local_data/legendas/entrada1/*.xlsx --debug --output_folder=output/export_legends --output_file=legends_indicators.csv --settings_labels=data/settings_labels.csv
+```
+
+Certifique-se de fornecer os caminhos corretos para os arquivos XLSX, o arquivo `settings_labels.csv`, o diretório de saída e o nome do arquivo de saída.
+
+### Funcionamento
+
+O script começa lendo os argumentos fornecidos e iniciando o processamento. Ele utiliza a biblioteca `pandas` para ler os arquivos XLSX e extrair informações relevantes, como os rótulos, cores e ordens das legendas. Em seguida, combina essas informações com valores obtidos a partir dos dados dos arquivos XLSX para criar uma tabela em formato CSV.
+
+### Observações
+
+- O modo de depuração (`--debug`) fornece informações adicionais durante a execução do script, facilitando a verificação do progresso e dos resultados.
+- O arquivo `settings_labels.csv` deve conter informações sobre as legendas, incluindo os campos 'label', 'color', 'order' e 'tag'.
+
+### Saída
+
+A saída deste script é um arquivo CSV que contém as informações de formatação das legendas extraídas dos arquivos XLSX. O arquivo CSV terá as colunas: 'id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id', 'order', 'tag', 'indicator'.
+
+### Exemplo de Uso
+
+```
+python3 generate_legends_from_xlsx.py --xlsx_files=local_data/legendas/entrada1/*.xlsx --debug --output_folder=output/export_legends --output_file=legends_indicators.csv --settings_labels=data/settings_labels.csv
+```
+
+Esse comando processará os arquivos XLSX encontrados no diretório `local_data/legendas/entrada1/`, ativando o modo de depuração. Os resultados serão salvos na pasta `output/export_legends` com o nome do arquivo de saída `legends_indicators.csv`. O arquivo `settings_labels.csv` será utilizado para obter informações sobre as legendas.
 
 ## Licença <a name="licenca"></a>
 
