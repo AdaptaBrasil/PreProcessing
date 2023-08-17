@@ -45,7 +45,7 @@ def main(args):
     }
 
     df_final = pd.DataFrame(column_relation_data)
-    dumb_index = 1000
+    control_index_legend = 1000
     legend_id = 100
     size_t = 10 # Intervalo de valores
 
@@ -89,24 +89,24 @@ def main(args):
             interval_min_max_list.append([None, None])
 
             # Iterate through the settings_labels.csv and create a list of values for each row
+            quant_labels = len(setting_labels)
             for index_s, row in setting_labels.iterrows():
                 label = row['label']
                 color = row['color']
                 order = row['order']
-                tag = row['tag']                
+                tag = row['tag']  
 
-                if index_s == 5:
-                    minvalue = None
-                    maxvalue = None
-                    tag = None
-                else:
-                    dumb_index += 1
-                    minvalue = interval_min_max_list[index_s][0]
-                    maxvalue = interval_min_max_list[index_s][1]
+                minvalue = interval_min_max_list[index_s][0]
+                maxvalue = interval_min_max_list[index_s][1]              
                 
-                data.append((dumb_index, label, color, minvalue, maxvalue, legend_id, order, tag, key))
+                control_index_legend += 1
+
+                if index_s == quant_labels - 1:
+                    tag = None
+                
+                data.append((control_index_legend, label, color, minvalue, maxvalue, legend_id, order, tag, key))
             
-                dumb_index += 1
+                control_index_legend += 1
             legend_id += 1
         df_local = df_local.append(pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator']), ignore_index=True)
 
