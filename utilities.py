@@ -47,6 +47,20 @@ def version_all_libraries():
 
 # version_all_libraries()
 
+def generate_value_pairs(min_value, max_value, num_pairs):
+    step = (max_value - min_value) / (num_pairs)
+    value_pairs = []
+    
+    for i in range(num_pairs):
+        value1 = min_value + i * step
+        value2 = min(min_value + (i + 1) * step - 0.01, max_value)
+        value_pairs.append([round(value1, 2), round(value2, 2)])
+    
+    # Corrigir o ultimo par: 
+    value_pairs[-1][1] = max_value
+    
+    return value_pairs
+
 def convert_to_hexadecimal(color_str):
     rgba_values = color_str.split(',')
     

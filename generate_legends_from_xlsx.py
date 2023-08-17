@@ -8,15 +8,7 @@ import argparse
 import time
 import pandas as pd
 import xml.etree.ElementTree as ET
-from utilities import convert_to_hexadecimal, create_folder_if_not_exists
-
-
-import numpy as np
-
-def generate_value_range(min_value, max_value):
-    value_range = np.linspace(min_value, max_value, 10)
-    value_range = np.around(value_range, decimals=2)
-    return value_range.tolist()
+from utilities import convert_to_hexadecimal, create_folder_if_not_exists, generate_value_pairs
 
 def main(args):
     xlsx_files = args.xlsx_files
@@ -55,6 +47,7 @@ def main(args):
     df_final = pd.DataFrame(column_relation_data)
     dumb_index = 1000
     legend_id = 100
+    size_t = 10 # Intervalo de valores
 
     for i, full_path_xlsx in enumerate(xlsx_files):
         print(f"\nStarting processing for indicator {i}: {full_path_xlsx}")
@@ -90,31 +83,28 @@ def main(args):
             min_value = df_values_columns.min().min()
             max_value = df_values_columns.max().max()
             # Create a list with 5 values between [minimum and maximum]
-            interval_min_max_list = generate_value_range(min_value, max_value)
-            print(f"Interval min max list: {interval_min_max_list}")
+            interval_min_max_list = generate_value_pairs(min_value, max_value, size_t)
+            if debug:
+                print(f"Interval min max list: {interval_min_max_list}")
+            interval_min_max_list.append([None, None])
 
             # Iterate through the settings_labels.csv and create a list of values for each row
-            a = 0
-            b = 1
-            for index, row in setting_labels.iterrows():
+            for index_s, row in setting_labels.iterrows():
                 label = row['label']
                 color = row['color']
                 order = row['order']
                 tag = row['tag']                
 
-                if a > 8 and b > 9:
+                if index_s == 5:
                     minvalue = None
                     maxvalue = None
                     tag = None
                 else:
                     dumb_index += 1
-                    minvalue = interval_min_max_list[a]
-                    maxvalue = interval_min_max_list[b]
+                    minvalue = interval_min_max_list[index_s][0]
+                    maxvalue = interval_min_max_list[index_s][1]
                 
                 data.append((dumb_index, label, color, minvalue, maxvalue, legend_id, order, tag, key))
-                
-                a = b + 1
-                b += 2
             
                 dumb_index += 1
             legend_id += 1
