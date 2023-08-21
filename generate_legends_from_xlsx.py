@@ -82,8 +82,9 @@ def main(args):
             
             min_value = df_values_columns.min().min()
             max_value = df_values_columns.max().max()
-            print(f"\nMin value: {min_value}")
-            print(f"Max value: {max_value}")
+            if debug:
+                print(f"\nMin value: {min_value}")
+                print(f"Max value: {max_value}")
             # Create a list with 5 values between [minimum and maximum]
             interval_min_max_list = generate_value_pairs(min_value, max_value, size_t)
             if debug:
