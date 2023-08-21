@@ -47,7 +47,7 @@ def main(args):
     df_final = pd.DataFrame(column_relation_data)
     control_index_legend = 1000
     legend_id = 100
-    size_t = 10 # Intervalo de valores
+    size_t = 5 # Intervalo de valores
 
     for i, full_path_xlsx in enumerate(xlsx_files):
         print(f"\nStarting processing for indicator {i}: {full_path_xlsx}")
@@ -82,6 +82,8 @@ def main(args):
             
             min_value = df_values_columns.min().min()
             max_value = df_values_columns.max().max()
+            print(f"\nMin value: {min_value}")
+            print(f"Max value: {max_value}")
             # Create a list with 5 values between [minimum and maximum]
             interval_min_max_list = generate_value_pairs(min_value, max_value, size_t)
             if debug:
@@ -118,8 +120,8 @@ def main(args):
     df_final['legend_id'] = df_final['legend_id'].astype(int)
     df_final['order'] = df_final['order'].astype(int)
 
-    # Save the final dataframe
-    df_final.to_csv(f'{output_folder_path}/{output_file}', index=False)
+    # Save the final dataframe. Save in encoding='utf-8'
+    df_final.to_csv(f'{output_folder_path}/{output_file}', index=False, encoding='utf-8')
     print(f"File {output_file} saved in {output_folder_path}")
 
 if __name__ == "__main__":
