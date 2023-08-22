@@ -39,7 +39,7 @@ def main(args):
         'minvalue': [],
         'maxvalue': [],
         'legend_id': [],
-        'indicator': [],
+        'indicator_id': [],
         'tag': [],
         'order': []
     }
@@ -50,7 +50,7 @@ def main(args):
     size_t = 5 # Intervalo de valores
 
     for i, full_path_xlsx in enumerate(xlsx_files):
-        print(f"\nStarting processing for indicator {i}: {full_path_xlsx}")
+        print(f"\nStarting processing for indicator_id {i}: {full_path_xlsx}")
 
         data = []
 
@@ -111,7 +111,7 @@ def main(args):
             
                 control_index_legend += 1
             legend_id += 1
-        df_local = df_local.append(pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator']), ignore_index=True)
+        df_local = df_local.append(pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id']), ignore_index=True)
 
         df_final = df_final.append(df_local, ignore_index=True)
 
