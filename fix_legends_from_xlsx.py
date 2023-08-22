@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Example: python3 fix_legends_from_xlsx.py --xlsx_files=local_data/legendas/entrada1/*.xlsx --debug --output_folder=output/export_legends --output_file=fixed_legends_indicators.csv --settings_labels=data/settings_labels.csv --to_fix=local_data/legendas/entrada2/legendas.csv
+# Example: python3 fix_legends_from_xlsx.py --debug --output_folder=output/export_legends --output_file=fixed_legends_indicators.csv --settings_labels=data/settings_labels.csv --to_fix=local_data/legendas/entrada2/legendas.csv
 
 import glob
 import argparse
@@ -11,7 +11,6 @@ import xml.etree.ElementTree as ET
 from utilities import convert_to_hexadecimal, create_folder_if_not_exists, generate_value_pairs
 
 def main(args):
-    xlsx_files = args.xlsx_files
     debug = args.debug
     output_folder_path = args.output_folder
     output_file = args.output_file
@@ -20,7 +19,6 @@ def main(args):
 
     if debug:
         print("Passed arguments:")
-        print("XLSX files mask:", xlsx_files)
         print("File to fix:", file_to_fix)
         print("Settings labels file:", path_settings_labels)
         print("Debug mode:", debug)
@@ -33,8 +31,6 @@ def main(args):
     # Imprimir Tipos de cada coluna: indicator_id|min|max|legend_id
 
     create_folder_if_not_exists(output_folder_path)
-    xlsx_files = glob.glob(xlsx_files, recursive=True)
-    print(f'Found {len(xlsx_files)} XLSX files')
 
     column_relation_data = {
         'id': [],
@@ -103,90 +99,16 @@ def main(args):
     # Save the final dataframe
     # Change data types
     df_final['id'] = df_final['id'].astype(int)
-    # df_final['legend_id'] = df_final['legend_id'].astype(int)
+    df_final['legend_id'] = df_final['legend_id'].astype(int)
     df_final['order'] = df_final['order'].astype(int)
 
     # Save the final dataframe. Save in encoding='utf-8'
     df_final.to_csv(f'{output_folder_path}/{output_file}', index=False, encoding='utf-8')
     print(f"File {output_file} saved in {output_folder_path}")
 
-    exit()
-
-    for i, full_path_xlsx in enumerate(xlsx_files):
-        print(f"\nStarting processing for indicator_id {i}: {full_path_xlsx}")
-
-        
-
-        # Read the input XLSX file using pandas
-        df_values = pd.read_excel(full_path_xlsx, engine='openpyxl')
-
-        # Sort by column name
-        df_values = df_values.sort_index(axis=1)
-
-        # Exclude columns without numbers in the name
-        df_values = df_values[df_values.columns[df_values.columns.str.contains('\d')]]
-
-        # Pattern of column name xxxx-yyyy or xxxx-yyyy-z: find all columns with the same number at the beginning of the name up to the hyphen and group them
-        # Create a dictionary with the column name and its value. The value should be a list of values from each row that had the column name pattern
-
-        df_local = pd.DataFrame(column_relation_data)
-        data = []
-
-        # Populando dict_columns com os valores da coluna indicator_id
-        lista_indicator_id = df_files_to_fix['indicator_id'].unique()
-
-        for key in lista_indicator_id:
-          
-            # Buscar a linha em df_files_to_fix com o indicator_id = key
-            df_values_columns = df_values[key]
-            print(f"df_values_columns: {df_values_columns}")
-            exit()
-            
-            min_value = df_values_columns.min().min()
-            max_value = df_values_columns.max().max()
-            if debug:
-                print(f"\nMin value: {min_value}")
-                print(f"Max value: {max_value}")
-            
-            # Verify if the minimum or maximum value is None or nan
-            if pd.isnull(min_value) or pd.isnull(max_value):
-                # Create a list with 5 values between [minimum and maximum]
-                interval_min_max_list = generate_value_pairs(min_value, max_value, size_t)
-                # bsucar a key no df_files_to_fix 'indicator_id'
-                if debug:
-                    print(f"Interval min max list: {interval_min_max_list}")
-                interval_min_max_list.append([None, None])
-
-                # Iterate through the settings_labels.csv and create a list of values for each row
-                quant_labels = len(setting_labels)
-                for index_s, row in setting_labels.iterrows():
-                    label = row['label']
-                    color = row['color']
-                    order = row['order']
-                    tag = row['tag']  
-
-                    minvalue = interval_min_max_list[index_s][0]
-                    maxvalue = interval_min_max_list[index_s][1]        
-                    
-                    control_index_legend += 1
-
-                    if index_s == quant_labels - 1:
-                        tag = None
-                    
-                    data.append((control_index_legend, label, color, minvalue, maxvalue, legend_id, order, tag, key))
-                
-                    control_index_legend += 1
-                legend_id += 1
-        df_local = df_local.append(pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id']), ignore_index=True)
-
-        df_final = df_final.append(df_local, ignore_index=True)
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     
-    parser.add_argument("--xlsx_files", required=True,
-                        help="Path to the directory where the XLSX files are located. Use glob patterns to find the XLSX files.")
     parser.add_argument("--debug", action='store_true',
                         help="Activate debug mode.")
     parser.add_argument("--settings_labels", default='settings_labels.csv', required=False,
