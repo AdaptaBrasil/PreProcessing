@@ -86,7 +86,13 @@ def main(args):
                 print(f"\nMin value: {min_value}")
                 print(f"Max value: {max_value}")
             # Create a list with 5 values between [minimum and maximum]
-            interval_min_max_list = generate_value_pairs(min_value, max_value, size_t)
+            # Verificar se o min_value e o max_value são None ou Nan
+            if pd.isnull(min_value) or pd.isnull(max_value):
+                print(f"min_value or max_value is null. New legend_id: {legend_id}")
+                # Criar interval_min_max_list com 5 valores [None, None]
+                interval_min_max_list = [[None, None]] * size_t
+            else: 
+                interval_min_max_list = generate_value_pairs(min_value, max_value, size_t)
             if debug:
                 print(f"Interval min max list: {interval_min_max_list}")
             interval_min_max_list.append([None, None])
