@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Example: python3 generate_legends_from_xlsx.py --xlsx_files=local_data/legendas/entrada1/*.xlsx --debug --output_folder=output/export_legends --output_file=legends_indicators.csv --settings_labels=data/settings_labels.csv
+# Example: python3 generate_legends_from_xlsx.py --xlsx_files=local_data/legendas/entrada1/*.xlsx --debug --output_folder=output/export_legends --output_file=ultimate_legends_indicators.csv --settings_labels=data/settings_labels.csv
 
 import glob
 import argparse
