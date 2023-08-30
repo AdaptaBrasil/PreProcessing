@@ -54,6 +54,14 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
     - [Observações](#observações-5)
     - [Saída](#saída-5)
     - [Exemplo de Uso](#exemplo-de-uso-5)
+  - [Reprojeção de Malhas com Sufixo](#reprojeção-de-malhas-com-sufixo)
+    - [Descrição](#descrição-1)
+    - [Requisitos](#requisitos-6)
+    - [Como usar](#como-usar-6)
+    - [Funcionamento](#funcionamento-6)
+    - [Observações](#observações-6)
+    - [Saída](#saída-6)
+    - [Exemplo de Uso](#exemplo-de-uso-6)
   - [Licença ](#licença-)
   - [Erros Comuns ](#erros-comuns-)
       - [Erro do rtree ](#erro-do-rtree-)
@@ -401,6 +409,66 @@ python3 generate_legends_from_xlsx.py --xlsx_files=local_data/legendas/entrada1/
 ```
 
 Esse comando processará os arquivos XLSX encontrados no diretório `local_data/legendas/entrada1/`, ativando o modo de depuração. Os resultados serão salvos na pasta `output/export_legends` com o nome do arquivo de saída `legends_indicators.csv`. O arquivo `settings_labels.csv` será utilizado para obter informações sobre as legendas.
+
+## Reprojeção de Malhas com Sufixo
+
+Este repositório contém um script Python chamado `reproject_shapefiles.py` que permite a reprojeção de malhas geoespaciais em um sistema de coordenadas específico, adicionando um sufixo opcional aos nomes dos arquivos de saída.
+
+### Descrição
+
+O script `reproject_shapefiles.py` é usado para realizar a reprojeção de malhas geoespaciais contidas em arquivos shapefile (`.shp`). Ele permite especificar um sistema de coordenadas de destino (EPSG) para a reprojeção. Além disso, é possível adicionar um sufixo opcional aos nomes dos arquivos de saída reprojetados.
+
+### Requisitos
+
+Certifique-se de ter os seguintes requisitos instalados:
+
+- Python 3.x
+- Bibliotecas Python: `geopandas`, `tqdm`
+
+Você pode instalar as bibliotecas necessárias executando o seguinte comando:
+
+```shell
+pip install -r requeriments.txt
+```
+
+### Como usar
+
+Execute o script `reproject_shapefiles.py` passando os argumentos necessários. O script requer os seguintes argumentos:
+
+- `--input_mask`: Máscara de arquivo para buscar arquivos shapefile (incluindo subdiretórios).
+- `--epsg`: Código EPSG de destino para a reprojeção.
+- `--suffix`: Sufixo a ser adicionado aos nomes dos arquivos de saída reprojetados (opcional).
+- `--output_dir`: Diretório de saída para os arquivos shapefile reprojetados (opcional).
+
+Aqui está um exemplo de como executar o script:
+
+```shell
+python3 reproject_shapefiles.py --input_mask=local_data/indicadores/*.shp --epsg=4326 --suffix=_shpreprojected --output_dir=output/new_shapefiles
+```
+
+Certifique-se de fornecer a máscara de arquivo correta para os arquivos shapefile, o código EPSG de destino, o sufixo (se necessário) e o diretório de saída (se necessário).
+
+### Funcionamento
+
+O script começa lendo os argumentos fornecidos e iniciando o processo de reprojeção. Ele utiliza a biblioteca `geopandas` para ler os arquivos shapefile, realizar a reprojeção conforme o EPSG especificado e salvar os arquivos reprojetados no diretório de saída. O processo é acompanhado por uma barra de progresso fornecida pela biblioteca `tqdm`.
+
+### Observações
+
+- Se o arquivo shapefile já estiver no sistema de coordenadas desejado (EPSG), uma mensagem de log será impressa.
+- O sufixo é opcional e permite diferenciar os arquivos reprojetados dos originais.
+- O diretório de saída será usado para armazenar os arquivos shapefile reprojetados. Se não for fornecido, os arquivos serão salvos no mesmo diretório dos arquivos originais.
+
+### Saída
+
+A saída deste script é uma série de arquivos shapefile reprojetados, que contêm as mesmas geometrias da malha original, porém em um sistema de coordenadas diferente. O sufixo (se fornecido) é adicionado aos nomes dos arquivos de saída reprojetados.
+
+### Exemplo de Uso
+
+```
+python3 reproject_shapefiles.py --input_mask=local_data/indicadores/*.shp --epsg=4326 --suffix=_shpreprojected --output_dir=output/new_shapefiles
+```
+
+Esse comando irá reprojetar os arquivos shapefile encontrados no diretório `local_data/indicadores/`, utilizando o código EPSG 4326 para a projeção. Os arquivos reprojetados serão salvos no diretório `output/new_shapefiles`, e um sufixo `_shpreprojected` será adicionado aos nomes dos arquivos de saída.
 
 ## Licença <a name="licenca"></a>
 
