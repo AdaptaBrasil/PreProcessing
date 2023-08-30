@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Example: python3 merge_shapefiles_mesh.py --mesh_file=local_data/malha/ferrovias.shp --indicator_files_mask=local_data/indicadores/*.shp --column_relation_file=relacao_arquivos_colunas_malha_rodovias.xlsx --new_mesh_file=indicadores_rodovias.shp --average --debug --output_folder=output/result_shapefiles_mesh
-
+# Examples: python3 merge_shapefiles_mesh.py --mesh_file=local_data/malha/ferrovias.shp --indicator_files_mask=local_data/indicadores/*.shp --column_relation_file=relacao_arquivos_colunas_malha_rodovias.xlsx --new_mesh_file=indicadores_rodovias.shp --average --debug --output_folder=output/result_shapefiles_mesh
+#           python3 merge_shapefiles_mesh.py --mesh_file=D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\Ferrovias\FerroviasEmOperacao.shp --indicator_files_mask=D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\02_FERROVIAS_Adriano\04_BASE_DE_DADOS/*.shp --column_relation_file=teste.xlsx --new_mesh_file=indicadores_ferrovias_teste.shp --average --debug --output_folder=D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\output\teste
 # Data manipulation and geospatial libraries
 import pandas as pd
 import geopandas as gpd
@@ -38,7 +38,7 @@ def main(args):
     output_folder_path = args.output_folder
 
     if debug:
-        print("\nPassed arguments:")
+        print("\nCommand line arguments:")
         print("Indicator files mask:", indicator_files_mask)
         print("Mesh file:", mesh_file_path)
         print("Columns relation file:", column_relation_file_name)
@@ -61,7 +61,11 @@ def main(args):
     mesh = load_shapefile(mesh_file_path, debug=debug,
                           change_crs=True, epsg=config.DEFAULT_CRS, set_buffer=True)
     print("Number of items in the mesh: ", len(mesh), "\n")
-
+    mesh.rename(columns={mesh_file_pk: 'mesh_file_pk'}, inplace=True) # force unique name for mesh pk
+    # remove CL_ORIG column, if exists, to not make a mess with indicator CL_ORIG column.
+    if 'CL_ORIG' in mesh.columns:
+        mesh.drop('CL_ORIG', inplace=True, axis=1)
+    mesh_file_pk = 'mesh_file_pk'
     # Get next column ID
     nextColId = 1
     if 'I_1' in mesh.columns:
@@ -107,12 +111,6 @@ def main(args):
                 f"\nStarting the processing of file {i}: {indicator_file_path} {datetime.now()}")
             indicator = gpd.read_file(indicator_file_path)
 
-            if debug:
-                print("Old CRS of the indicator:", indicator.crs)
-
-            # Change to EPSG 5880 CRS or Default CRS
-            indicator = indicator.to_crs(CRS.from_epsg(config.DEFAULT_CRS))
-
             # Add ID column if it doesn't exist
             if not 'ID' in indicator.columns:
                 indicator.insert(0, 'ID', range(1, len(indicator)+1))
@@ -128,6 +126,15 @@ def main(args):
             else:
                 indicator.rename(columns={col_name: "CL_ORIG"}, inplace=True)
 
+            if 'FILT_RISC' in indicator.columns:
+                # Apply FILT_RISC rule:
+                indicator = indicator[indicator.FILT_RIS != 'Nao']
+
+            if debug:
+                print("Old CRS of the indicator:", indicator.crs)
+
+            # Change to EPSG 5880 CRS or Default CRS
+            indicator = indicator.to_crs(CRS.from_epsg(config.DEFAULT_CRS))
             if debug:
                 print("New CRS of the indicator:", indicator.crs)
 
@@ -169,7 +176,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mesh_file", required=True,
                         help="Path to the mesh file.")
-    parser.add_argument("--mesh_file_pk", default='object_id',
+    parser.add_argument("--mesh_file_pk", default='objectid',
                         help="Primary key field name of mesh file.")
     parser.add_argument("--indicator_files_mask", required=True,
                         help="Path to the indicator files mask. The glob function will be used to find the indicator files.")
