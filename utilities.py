@@ -23,6 +23,8 @@ from matplotlib.ticker import PercentFormatter
 
 # Bibliotecas úteis do sistema
 import os
+import math
+
 
 # Bibliotecas de aprendizado de máquina e funções de avaliação
 from sklearn.metrics import confusion_matrix
@@ -47,19 +49,37 @@ def version_all_libraries():
 
 # version_all_libraries()
 
-def generate_value_pairs(min_value, max_value, num_pairs):
-    step = (max_value - min_value) / (num_pairs)
-    value_pairs = []
-    
-    for i in range(num_pairs):
-        value1 = min_value + i * step
-        value2 = min(min_value + (i + 1) * step - 0.01, max_value)
-        value_pairs.append([round(value1, 2), round(value2, 2)])
-    
-    # Corrigir o ultimo par: 
-    value_pairs[-1][1] = max_value
-    
-    return value_pairs
+# Função trunc para truncar valores com base no número de casas decimais
+def trunc(value, decimal_places):
+    multiplier = 10 ** decimal_places
+    truncated_value = math.trunc(value * multiplier) / multiplier
+    return truncated_value
+
+def generate_value_pairs(a1, an, numero_termos):
+    numero_termos += 1
+    razao = (an - a1) / (numero_termos - 1)
+    termos = [a1 + (i * razao) for i in range(numero_termos)]
+
+    valores = []
+
+    for i in range(len(termos) - 1):
+        valor1 = termos[i]
+        valor2 = termos[i + 1]
+        numero_casas_decimais_valor2 = len(str(valor2).split('.')[1])
+        # Subtrair 1 unidade na ultima casa decimal do valor2 
+        valor2 = valor2 - 10 ** (-numero_casas_decimais_valor2)
+        # Arredondar o valor2 com truncamento para 2 casas decimais. Trunc
+        valor2 = trunc(valor2, numero_casas_decimais_valor2)
+
+        diferenca = valor2 - valor1
+
+        valores.append([valor1, valor2, diferenca])
+
+    # Corrigir o último valor
+    valores[-1][1] = an
+    # Corrigir o primeiro valor
+    valores[0][0] = a1
+    return valores
 
 def convert_to_hexadecimal(color_str):
     rgba_values = color_str.split(',')
