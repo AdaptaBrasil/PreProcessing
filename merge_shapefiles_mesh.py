@@ -36,6 +36,7 @@ def main(args):
     is_average = args.average
     debug = args.debug
     output_folder_path = args.output_folder
+    target_filters = args.target_filters
 
     if debug:
         print("\nCommand line arguments:")
@@ -46,6 +47,7 @@ def main(args):
         print("Average:", is_average)
         print("Debug mode:", debug)
         print("Output folder:", output_folder_path)
+        print("Target Filters:", target_filters)
         print("Default CRS:", config.DEFAULT_CRS, "\n")
 
     # Create output folder if it doesn't exist
@@ -125,10 +127,19 @@ def main(args):
                 continue
             else:
                 indicator.rename(columns={col_name: "CL_ORIG"}, inplace=True)
+            # TODO: Mexer no filtro aqui 
+            if target_filters != None:
+                filters = target_filters.split(",")
+                for i_filter, filter in enumerate(filters):
+                    print(f"Filtro {i_filter}: {filter}")
 
-            if 'FILT_RISC' in indicator.columns:
-                # Apply FILT_RISC rule:
-                indicator = indicator[indicator.FILT_RIS != 'Nao']
+                print("\nCollumns: ", indicator.columns)
+
+                if 'FILT_RISC' in indicator.columns:
+                    # Apply FILT_RISC rule:
+                    indicator = indicator[indicator.FILT_RIS != 'Nao']
+
+            exit(0)
 
             if debug:
                 print("Old CRS of the indicator:", indicator.crs)
@@ -190,6 +201,9 @@ if __name__ == "__main__":
                         help="Activate debug mode.")
     parser.add_argument("--output_folder", default='output', required=True,
                         help="Path to the directory that will be used to save the generated files.")
+    
+    parser.add_argument("--target_filters", default=None, required=False,
+                        help="Filter collumns")
 
     args = parser.parse_args()
 
