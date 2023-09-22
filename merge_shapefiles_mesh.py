@@ -135,12 +135,12 @@ def main(args):
 
                 print("\nCollumns: ", indicator.columns)
 
-                if 'FILT_RISC' in indicator.columns:
-                    # Apply FILT_RISC rule:
-                    indicator = indicator[indicator.FILT_RIS != 'Nao']
+            if 'FILT_RISC' in indicator.columns:
+                # Apply FILT_RISC rule:
+                indicator = indicator[indicator.FILT_RIS != 'Nao']
+            # TODO
 
-            exit(0)
-
+            
             if debug:
                 print("Old CRS of the indicator:", indicator.crs)
 
