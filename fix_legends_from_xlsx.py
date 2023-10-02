@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Example: python3 fix_legends_from_xlsx.py --debug --output_folder=output/export_legends --output_file=fixed_legends_indicators.csv --settings_labels=data/settings_labels.csv --to_fix=local_data/legendas/entrada2/legendas.csv
+# Example: python3 fix_legends_from_xlsx.py --debug --output_folder=output/export_legends --output_file=fixed_legends_indicators.csv --settings_labels=data/settings_labels.csv --to_fix=local_data/legendas/entrada3/legendas.csv
 
 import glob
 import argparse
@@ -16,6 +16,7 @@ def main(args):
     output_file = args.output_file
     path_settings_labels = args.settings_labels
     file_to_fix = args.to_fix
+    current_legend_id = args.legend_id
 
     if debug:
         print("Passed arguments:")
@@ -25,6 +26,7 @@ def main(args):
         print("Output folder:", output_folder_path)
         print("Output file:", output_file)
         print("Complete output file path:", f"{output_folder_path}/{output_file}")
+        print("Legend id:", current_legend_id)
 
     setting_labels = pd.read_csv(path_settings_labels, sep=';')
     df_files_to_fix = pd.read_csv(file_to_fix, sep='|')
@@ -46,7 +48,13 @@ def main(args):
 
     df_final = pd.DataFrame(column_relation_data)
     control_index_legend = 1000
-    new_legend_id = 141
+    
+    new_legend_id = 0
+    if current_legend_id != 0:
+        new_legend_id = current_legend_id
+    else:
+        new_legend_id = int(df_files_to_fix.iloc[0]['legend_id'])
+    
     size_t = 5 # Intervalo de valores
 
     # for in df_files_to_fix
@@ -57,50 +65,48 @@ def main(args):
         min_value = line.min
         max_value = line.max
         legend_id = line.legend_id
-        # Verifica se o legend_id é None ou Nan 
-        if pd.isnull(legend_id):
-            print(f"legend_id is null. New legend_id: {legend_id}")
-            data = []
-            df_local = pd.DataFrame(column_relation_data)
 
-            # Create a list with 5 values between [minimum and maximum]
-            # Verificar se o min_value e o max_value são None ou Nan
-            if pd.isnull(min_value) or pd.isnull(max_value):
-                print(f"min_value or max_value is null. New legend_id: {legend_id}")
-                # Criar interval_min_max_list com 5 valores [None, None]
-                interval_min_max_list = [[None, None]] * size_t
-            else: 
-                interval_min_max_list = generate_value_pairs(min_value, max_value, size_t)
-            # bsucar a key no df_files_to_fix 'indicator_id'
-            if debug:
-                print(f"Interval min max list: {interval_min_max_list}")
-            interval_min_max_list.append([None, None])
+        print(f"Legend_id is null. New legend_id: {legend_id}")
+        data = []
+        df_local = pd.DataFrame(column_relation_data)
 
-            # Iterate through the settings_labels.csv and create a list of values for each row
-            quant_labels = len(setting_labels)
-            for index_s, row in setting_labels.iterrows():
-                label = row['label']
-                color = row['color']
-                order = row['order']
-                tag = row['tag']  
+        # Create a list with 5 values between [minimum and maximum]
+        # Verificar se o min_value e o max_value são None ou Nan
+        if pd.isnull(min_value) or pd.isnull(max_value):
+            print(f"min_value or max_value is null. New legend_id: {legend_id}")
+            # Criar interval_min_max_list com 5 valores [None, None]
+            interval_min_max_list = [[None, None]] * size_t
+        else: 
+            interval_min_max_list = generate_value_pairs(min_value, max_value, size_t)
+        # bsucar a key no df_files_to_fix 'indicator_id'
+        if debug:
+            print(f"Interval min max list: {interval_min_max_list}")
+        interval_min_max_list.append([None, None])
 
-                minvalue = interval_min_max_list[index_s][0]
-                maxvalue = interval_min_max_list[index_s][1]        
-                
-                control_index_legend += 1
+        # Iterate through the settings_labels.csv and create a list of values for each row
+        quant_labels = len(setting_labels)
+        for index_s, row in setting_labels.iterrows():
+            label = row['label']
+            color = row['color']
+            order = row['order']
+            tag = row['tag']  
 
-                if index_s == quant_labels - 1:
-                    tag = None
-                
-                data.append((control_index_legend, label, color, minvalue, maxvalue, new_legend_id, order, tag, indicator_id))
+            minvalue = interval_min_max_list[index_s][0]
+            maxvalue = interval_min_max_list[index_s][1]        
             
-                control_index_legend += 1
+            control_index_legend += 1
 
-            df_local = df_local.append(pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id']), ignore_index=True)
+            if index_s == quant_labels - 1:
+                tag = None
+            
+            data.append((control_index_legend, label, color, minvalue, maxvalue, new_legend_id, order, tag, indicator_id))
+        
+            control_index_legend += 1
 
-            df_final = df_final.append(df_local, ignore_index=True)
-            new_legend_id += 1
+        df_local = df_local.append(pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id']), ignore_index=True)
 
+        df_final = df_final.append(df_local, ignore_index=True)
+        new_legend_id += 1 
 
     # Save the final dataframe
     # Change data types
@@ -125,6 +131,9 @@ if __name__ == "__main__":
                         help="Path to the directory where the generated files will be saved.")
     parser.add_argument("--output_file", default='legends_indicators.csv', required=False,
                         help="Name of the output file.")
+    
+    parser.add_argument("--legend_id", default=0, required=False,
+                        help="Legend id to be used. If it is not passed, the legend_id will be generated.")
     args = parser.parse_args()
 
     initial_time = time.time()
