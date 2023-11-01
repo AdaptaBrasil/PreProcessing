@@ -107,9 +107,9 @@ def main(args):
 
             key_data = path_qml.split('-')[0]
             if key_data in dict_list_data:
-                dict_list_data[key_data].append([dumb_index, label, color, minvalue, maxvalue, i+10, path_qml])
+                dict_list_data[key_data].append([dumb_index, label, color, minvalue, maxvalue, dumb_index, path_qml])
             else:
-                dict_list_data[key_data] = [[dumb_index, label, color, minvalue, maxvalue, i+10, path_qml]]
+                dict_list_data[key_data] = [[dumb_index, label, color, minvalue, maxvalue, dumb_index, path_qml]]
             dumb_index += 1
 
     # Print dict_list_data
@@ -142,7 +142,7 @@ def main(args):
             maxvalue = trunc(value_i[1], 5)
             label = f"{minvalue} - {maxvalue}"
             color = generate_color(i, dumb_index)
-            data.append((dumb_index, label, color, minvalue, maxvalue, i+10, key))
+            data.append((dumb_index, label, color, minvalue, maxvalue, dumb_index, key))
         
         dumb_index += 1
 
