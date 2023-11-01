@@ -9,6 +9,7 @@ import time
 import pandas as pd
 import xml.etree.ElementTree as ET
 from utilities import convert_to_hexadecimal, create_folder_if_not_exists, generate_value_pairs, trunc, generate_color
+import os
 
 def parse_qml_ranges_ranges(renderer_element):
     ranges_dict = {}
@@ -92,7 +93,7 @@ def main(args):
     for i, full_path_qml in enumerate(qml_files):
         print(f"\nStarting processing for indicator {i}: {full_path_qml}")
 
-        path_qml = full_path_qml.split('/')[-1]
+        path_qml = full_path_qml.split(os.sep)[-1]
         path_qml = path_qml.replace('.qml', '')
         df_local = pd.DataFrame(column_relation_data)
 
@@ -105,7 +106,8 @@ def main(args):
             maxvalue = qml_content['ranges'][symbol_id]['maxvalue']
             color = symbol_properties.get('color', '')
 
-            key_data = path_qml.split('-')[0]
+            key_data = path_qml.split('\\')[-1]
+            key_data = key_data.split('-')[0]
             if key_data in dict_list_data:
                 dict_list_data[key_data].append([i+10, label, color, minvalue, maxvalue, dumb_index, path_qml])
             else:
@@ -128,7 +130,7 @@ def main(args):
                 maxvalue = maxvalue_i
         data_list[key] = [minvalue, maxvalue]
     
-    dumb_index = 100
+    dumb_index = 1
     j = 1
     for key, value in dict_list_data.items():
         df_local = pd.DataFrame(column_relation_data)
