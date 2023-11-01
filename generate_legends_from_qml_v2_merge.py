@@ -107,9 +107,9 @@ def main(args):
 
             key_data = path_qml.split('-')[0]
             if key_data in dict_list_data:
-                dict_list_data[key_data].append([dumb_index, label, color, minvalue, maxvalue, dumb_index, path_qml])
+                dict_list_data[key_data].append([i+10, label, color, minvalue, maxvalue, dumb_index, path_qml])
             else:
-                dict_list_data[key_data] = [[dumb_index, label, color, minvalue, maxvalue, dumb_index, path_qml]]
+                dict_list_data[key_data] = [[i+10, label, color, minvalue, maxvalue, dumb_index, path_qml]]
             dumb_index += 1
 
     # Print dict_list_data
@@ -129,7 +129,7 @@ def main(args):
         data_list[key] = [minvalue, maxvalue]
     
     dumb_index = 100
-    
+    j = 1
     for key, value in dict_list_data.items():
         df_local = pd.DataFrame(column_relation_data)
 
@@ -140,9 +140,11 @@ def main(args):
         for i, value_i in enumerate(values):
             minvalue = trunc(value_i[0], 5)
             maxvalue = trunc(value_i[1], 5)
+            id = j
             label = f"{minvalue} - {maxvalue}"
             color = generate_color(i, dumb_index)
-            data.append((dumb_index, label, color, minvalue, maxvalue, dumb_index, key))
+            data.append((id, label, color, minvalue, maxvalue, dumb_index, key))
+            j += 1
         
         dumb_index += 1
 
