@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Example: python3 generate_legends_from_qml_v2_merge.py --qml_files=local_data/qml/**/*.qml --debug --output_folder=output/export_legends --output_file=legends_indicators.csv
+# Example: python3 generate_legends_from_qml_v2_merge.py --qml_files=local_data/qml/**/*.qml --debug --output_folder=output/export_legends --output_file=legends_indicators_v2_merge.csv
 
 import glob
 import argparse
@@ -152,7 +152,7 @@ def main(args):
         df_local = df_local.sort_values(by=['minvalue'])
         df_local['order'] = range(1, len(df_local) + 1)
         df_local['tag'] = df_local['order']
-
+        # Append to final dataframe
         df_final = df_final.append(df_local, ignore_index=True)
 
     # Change data types
