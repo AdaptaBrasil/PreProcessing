@@ -92,6 +92,27 @@ def convert_to_hexadecimal(color_str):
     
     return hex_color
 
+def generate_color(i, a):
+    # Determinar a cor base usando 'a' módulo 3
+    color_base = a % 3
+    r_base, g_base, b_base = 0, 0, 0
+    
+    if color_base == 0:  # Vermelho
+        r_base = 255
+    elif color_base == 1:  # Verde
+        g_base = 255
+    else:  # Azul
+        b_base = 255
+    
+    # Ajustar a intensidade da cor base com base em 'i'
+    intensity_increment = 59  # Valor escolhido para obter o comportamento desejado
+    r = min(255, r_base + i * intensity_increment)
+    g = min(255, g_base + i * intensity_increment)
+    b = min(255, b_base + i * intensity_increment)
+    
+    # Retorna a cor no formato desejado
+    return "#{:02X}{:02X}{:02X}".format(r, g, b)
+
 def load_shapefile(path_file_shp, debug=False, change_crs=False, epsg=5880, set_buffer=False):
     # Load shapefile
     shapefile = gpd.read_file(path_file_shp)
