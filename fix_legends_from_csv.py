@@ -87,7 +87,7 @@ def main(args):
             maxvalue = interval_min_max_list[index_s][1]        
             
             if index_s == quant_labels - 1:
-                tag = None
+                tag = 'None'
             
             data.append((control_index_id, label, color, minvalue, maxvalue, index_s +1, order, tag, indicator_id))
         
