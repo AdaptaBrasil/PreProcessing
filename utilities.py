@@ -55,6 +55,39 @@ def trunc(value, decimal_places):
     truncated_value = math.trunc(value * multiplier) / multiplier
     return truncated_value
 
+def generate_value_pairs_fixed_zero(a1, an, numero_termos):
+    termos = []
+    numero_termos += 1
+
+    # Incluir o zero se o intervalo tiver um número negativo e um positivo
+    if a1 < 0 and an > 0:
+        # Calcular a razão para os intervalos separadamente
+        razao_negativa = -a1 / (numero_termos // 2)
+        razao_positiva = an / ((numero_termos + 1) // 2)
+        termos_negativos = [a1 + i * razao_negativa for i in range(numero_termos // 2)]
+        termos_positivos = [i * razao_positiva for i in range((numero_termos + 1) // 2)]
+        termos = termos_negativos + termos_positivos
+    else:
+        razao = (an - a1) / (numero_termos - 1)
+        termos = [a1 + i * razao for i in range(numero_termos)]
+
+    valores = []
+
+    for i in range(len(termos) - 1):
+        valor1 = termos[i]
+        valor2 = termos[i + 1]
+        numero_casas_decimais_valor2 = len(str(valor2).split('.')[1]) if '.' in str(valor2) else 0
+        valor2 = valor2 - 10 ** (-numero_casas_decimais_valor2)
+        valor2 = trunc(valor2, numero_casas_decimais_valor2)
+
+        diferenca = valor2 - valor1
+
+        valores.append([valor1, valor2, diferenca])
+
+    valores[-1][1] = an
+    valores[0][0] = a1
+    return valores
+
 def generate_value_pairs(a1, an, numero_termos):
     numero_termos += 1
     razao = (an - a1) / (numero_termos - 1)

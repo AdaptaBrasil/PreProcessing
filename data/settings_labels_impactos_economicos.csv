@@ -1,0 +1,7 @@
+label;color;order;tag
+Muito baixo;#0000FF;1;verylow
+Baixo;#3B3BFF;2;low
+Médio;#7676FF;3;mid
+Alto;#B1B1FF;4;high
+Muito alto;#ECECFF;5;veryhigh
+Dado indisponível;#DCDCDC;6;None

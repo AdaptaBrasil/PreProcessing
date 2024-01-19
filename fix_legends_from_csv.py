@@ -7,8 +7,7 @@ import glob
 import argparse
 import time
 import pandas as pd
-import xml.etree.ElementTree as ET
-from utilities import convert_to_hexadecimal, create_folder_if_not_exists, generate_value_pairs
+from utilities import create_folder_if_not_exists, generate_value_pairs_fixed_zero
 
 def main(args):
     debug = args.debug
@@ -69,8 +68,8 @@ def main(args):
             # Criar interval_min_max_list com 5 valores [None, None]
             interval_min_max_list = [[None, None]] * size_t
         else: 
-            interval_min_max_list = generate_value_pairs(min_value, max_value, size_t)
-        # bsucar a key no df_files_to_fix 'indicator_id'
+            interval_min_max_list = generate_value_pairs_fixed_zero(min_value, max_value, size_t)
+        # Buscar a key no df_files_to_fix 'indicator_id'
         if debug:
             print(f"Interval min max list: {interval_min_max_list}")
         interval_min_max_list.append([None, None])
