@@ -7,7 +7,7 @@ import glob
 import argparse
 import time
 import pandas as pd
-from utilities import create_folder_if_not_exists, generate_value_pairs_fixed_zero
+from utilities import create_folder_if_not_exists, generate_value_pairs_fixed_zero, trunc
 
 def main(args):
     debug = args.debug
@@ -57,9 +57,12 @@ def main(args):
         min_value = line.min
         max_value = line.max
 
-        print(f"Fix indicator_id: {indicator_id}")
+        print(f"\nFix indicator_id: {indicator_id}")
         data = []
+        # Ler no padrão eua
         df_local = pd.DataFrame(column_relation_data)
+        # Converter os números para float
+        df_local['minvalue'] = df_local['minvalue'].astype(float)
 
         # Create a list with 5 values between [minimum and maximum]
         # Verificar se o min_value e o max_value são None ou Nan
@@ -67,7 +70,10 @@ def main(args):
             print(f"min_value or max_value is null. New indicator_id: {indicator_id}")
             # Criar interval_min_max_list com 5 valores [None, None]
             interval_min_max_list = [[None, None]] * size_t
-        else: 
+        else:
+            # Set type to float
+            min_value = float(min_value)
+            max_value = float(max_value)
             interval_min_max_list = generate_value_pairs_fixed_zero(min_value, max_value, size_t)
         # Buscar a key no df_files_to_fix 'indicator_id'
         if debug:
@@ -83,7 +89,13 @@ def main(args):
             tag = row['tag']  
 
             minvalue = interval_min_max_list[index_s][0]
-            maxvalue = interval_min_max_list[index_s][1]        
+            # Trunc if minvalue is not None
+            if minvalue is not None:
+                minvalue = trunc(minvalue, 2)
+            maxvalue = interval_min_max_list[index_s][1]      
+            # Trunc if maxvalue is not None
+            if maxvalue is not None:
+                maxvalue = trunc(maxvalue, 2)  
             
             if index_s == quant_labels - 1:
                 tag = 'None'
