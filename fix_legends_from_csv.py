@@ -46,6 +46,7 @@ def main(args):
 
     df_final = pd.DataFrame(column_relation_data)
     control_index_id = 1
+    control_legend_id = 1
         
     size_t = 5 # Intervalo de valores
 
@@ -100,9 +101,10 @@ def main(args):
             if index_s == quant_labels - 1:
                 tag = 'None'
             
-            data.append((control_index_id, label, color, minvalue, maxvalue, index_s +1, order, tag, indicator_id))
+            data.append((control_index_id, label, color, minvalue, maxvalue, control_legend_id, order, tag, indicator_id))
         
             control_index_id += 1
+        control_legend_id += 1
 
         df_local = df_local.append(pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id']), ignore_index=True)
 
