@@ -51,9 +51,10 @@ def version_all_libraries():
 
 # Função trunc para truncar valores com base no número de casas decimais
 def trunc(value, decimal_places):
-    multiplier = 10 ** decimal_places
+    multiplier = 100 ** decimal_places
     truncated_value = math.trunc(value * multiplier) / multiplier
     return truncated_value
+
 
 def generate_value_pairs_fixed_zero(a1, an, numero_termos):
     termos = []

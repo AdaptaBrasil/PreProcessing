@@ -9,6 +9,59 @@ import time
 import pandas as pd
 from utilities import create_folder_if_not_exists, generate_value_pairs_fixed_zero, trunc
 
+def truncate_numbers(lista, x):
+    # Função para truncar um único número
+    def truncate_number(n, x):
+        if n is None:
+            return None
+        n_str = f"{n:.{x+10}f}"  # Converte para string com algumas casas decimais a mais
+        point_index = n_str.find('.')  # Encontra a posição do ponto decimal
+        if point_index != -1:
+            truncated_str = n_str[:point_index + x + 1]  # Trunca a string mantendo 'x' casas decimais
+            return float(truncated_str)  # Converte de volta para float
+        else:
+            return n  # Retorna o número original se não houver ponto decimal
+
+    # Aplica a função de truncar a cada número na lista de listas
+    truncated_list = [[truncate_number(num, x) for num in sublist] for sublist in lista]
+    return truncated_list
+
+def verify_list(lista, precision):
+    for i in range(len(lista)):
+        # Verifica se o par é [None, None]
+        if lista[i] == [None, None]:
+            return False
+        
+        # Para todos os itens, exceto o último, verifica se o próximo começa com o valor esperado
+        if i < len(lista) - 1:
+            current_end = lista[i][1]
+            next_start = lista[i+1][0]
+            
+            # Calcula o valor esperado para o início do próximo item
+            expected_start = current_end + precision
+            
+            # Verifica se o valor atual é diferente do esperado
+            if abs(next_start - expected_start) > 1e-9:  # Usa uma pequena margem para evitar erros de ponto flutuante
+                return False
+    
+    return True
+
+def fix_precision_interval_min_max_list(lista, precision):
+    # Remove os pares [None, None]
+    lista = [par for par in lista if par != [None, None]]
+    
+    # Corrige os valores com base na precisão
+    for i in range(1, len(lista)):
+        prev_end = lista[i-1][1]
+        current_start = lista[i][0]
+        
+        # Verifica se o item atual começa com o valor esperado; ajusta se necessário
+        expected_start = prev_end + precision
+        if current_start != expected_start:
+            lista[i][0] = expected_start
+    
+    return lista
+
 def main(args):
     debug = args.debug
     output_folder_path = args.output_folder
@@ -47,6 +100,9 @@ def main(args):
     df_final = pd.DataFrame(column_relation_data)
     control_index_id = 1
     control_legend_id = 1
+    PRECISION = 0.01
+    TRUNC_DECIMAL = 2
+    is_valid_overlapping = True
         
     size_t = 5 # Intervalo de valores
 
@@ -71,15 +127,23 @@ def main(args):
             print(f"min_value or max_value is null. New indicator_id: {indicator_id}")
             # Criar interval_min_max_list com 5 valores [None, None]
             interval_min_max_list = [[None, None]] * size_t
+            is_valid_overlapping = is_valid_overlapping and True
         else:
             # Set type to float
             min_value = float(min_value)
             max_value = float(max_value)
             interval_min_max_list = generate_value_pairs_fixed_zero(min_value, max_value, size_t)
-        # Buscar a key no df_files_to_fix 'indicator_id'
-        if debug:
-            print(f"Interval min max list: {interval_min_max_list}")
+
+            # Equanto verify_list não for True, continue ajustando
+            while not verify_list(interval_min_max_list, PRECISION):
+                interval_min_max_list = fix_precision_interval_min_max_list(interval_min_max_list, PRECISION)
+                interval_min_max_list = truncate_numbers(interval_min_max_list, TRUNC_DECIMAL)
+                print("Ajustando valores...")
+            is_valid_overlapping = is_valid_overlapping and verify_list(interval_min_max_list, PRECISION)
         interval_min_max_list.append([None, None])
+        
+        if debug:
+            print(interval_min_max_list)
 
         # Iterate through the settings_labels.csv and create a list of values for each row
         quant_labels = len(setting_labels)
@@ -90,25 +154,28 @@ def main(args):
             tag = row['tag']  
 
             minvalue = interval_min_max_list[index_s][0]
-            # Trunc if minvalue is not None
-            if minvalue is not None:
-                minvalue = trunc(minvalue, 2)
-            maxvalue = interval_min_max_list[index_s][1]      
-            # Trunc if maxvalue is not None
-            if maxvalue is not None:
-                maxvalue = trunc(maxvalue, 2)  
+            maxvalue = interval_min_max_list[index_s][1]
             
+            final_char = ", "
             if index_s == quant_labels - 1:
                 tag = 'None'
+                final_char = ""
+
+            #print([minvalue, maxvalue], end=final_char)
             
             data.append((control_index_id, label, color, minvalue, maxvalue, control_legend_id, order, tag, indicator_id))
         
             control_index_id += 1
         control_legend_id += 1
+        print()
 
-        df_local = df_local.append(pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id']), ignore_index=True)
+        # Versão com append
+        # df_local = df_local.append(pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id']), ignore_index=True)
+        # df_final = df_final.append(df_local, ignore_index=True)
 
-        df_final = df_final.append(df_local, ignore_index=True)
+        # Versão com concat
+        df_local = pd.concat([df_local, pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id'])], ignore_index=True)
+        df_final = pd.concat([df_final, df_local], ignore_index=True)
 
     # Save the final dataframe
     # Change data types
@@ -119,6 +186,11 @@ def main(args):
     # Save the final dataframe. Save in encoding='utf-8'
     df_final.to_csv(f'{output_folder_path}/{output_file}', index=False, encoding='utf-8')
     print(f"File {output_file} saved in {output_folder_path}")
+    # IS VALID OVERLAPPING
+    if is_valid_overlapping:
+        print("Todos os intervalos estão corretos.")
+    else:
+        print("Há intervalos incorretos.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

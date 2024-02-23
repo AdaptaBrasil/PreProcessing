@@ -66,6 +66,7 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
   - [Erros Comuns ](#erros-comuns-)
       - [Erro do rtree ](#erro-do-rtree-)
       - [Erro do progress bar ](#erro-do-progress-bar-)
+      - [Criando o ambiente virtual](#criando-o-ambiente-virtual)
 
 ## Merge de Indicadores Shapefiles em Malha
 
@@ -487,4 +488,10 @@ pip3 install rtree==1.0.1
 #### Erro do progress bar <a name="erro-do-progress-bar"></a>
 ```shell
 pip3 install progress progressbar2 alive-progress tqdm
+```
+
+#### Criando o ambiente virtual
+```shell
+conda create -n adapta_pre -c conda-forge python numpy pandas scikit-learn -y
+pip install -r requirements.txt
 ```
