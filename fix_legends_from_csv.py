@@ -187,7 +187,7 @@ def main(args):
 
     # Save the final dataframe. Save in encoding='utf-8'
     df_final.to_csv(f'{output_folder_path}/{output_file}', index=False, encoding='utf-8')
-    print(f"File {output_file} saved in {output_folder_path}")
+    print(f"File saved in: {output_folder_path}/{output_file}")
     # count_indicators
     print(f"Total of indicators: {count_indicators}")
     # IS VALID OVERLAPPING
