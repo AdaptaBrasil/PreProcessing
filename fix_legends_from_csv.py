@@ -36,12 +36,14 @@ def verify_list(lista, precision):
         if i < len(lista) - 1:
             current_end = lista[i][1]
             next_start = lista[i+1][0]
-            
+
             # Calcula o valor esperado para o início do próximo item
             expected_start = current_end + precision
-            
+
+            # print(f"\ncurrent_end: {current_end}, next_start: {next_start}, expected_start: {expected_start}")
+            # print(f"abs(next_start - expected_start): {abs(next_start - expected_start)} > 1e-9: {abs(next_start - expected_start) > 1e-9}")
             # Verifica se o valor atual é diferente do esperado
-            if abs(next_start - expected_start) > 1e-9:  # Usa uma pequena margem para evitar erros de ponto flutuante
+            if abs(abs(next_start) - abs(expected_start)) > 1e-9:  # Usa uma pequena margem para evitar erros de ponto flutuante
                 return False
     
     return True
@@ -135,6 +137,8 @@ def main(args):
             min_value = float(min_value)
             max_value = float(max_value)
             interval_min_max_list = generate_value_pairs_fixed_zero(min_value, max_value, size_t)
+            if debug:
+                print(f"OLD interval: {interval_min_max_list}")
 
             # Equanto verify_list não for True, continue ajustando
             while not verify_list(interval_min_max_list, PRECISION):
@@ -145,7 +149,7 @@ def main(args):
         interval_min_max_list.append([None, None])
         
         if debug:
-            print(interval_min_max_list)
+            print(f"NEW interval: {interval_min_max_list}")
 
         # Iterate through the settings_labels.csv and create a list of values for each row
         quant_labels = len(setting_labels)

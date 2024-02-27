@@ -78,7 +78,7 @@ def generate_value_pairs_fixed_zero(a1, an, numero_termos):
         valor1 = termos[i]
         valor2 = termos[i + 1]
         numero_casas_decimais_valor2 = len(str(valor2).split('.')[1]) if '.' in str(valor2) else 0
-        valor2 = valor2 - 10 ** (-numero_casas_decimais_valor2)
+        valor2 = valor2 - 100 ** (-numero_casas_decimais_valor2)
         valor2 = trunc(valor2, numero_casas_decimais_valor2)
 
         diferenca = valor2 - valor1
