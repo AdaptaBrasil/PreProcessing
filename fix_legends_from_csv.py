@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Example: python3 fix_legends_from_csv.py --debug --output_folder=output/export_legends --output_file=fixed_legends_from_csv_indicators.csv --settings_labels=data/settings_labels.csv --to_fix=local_data/planilha_fix_indicadores/idsminmaxvalues.csv
+# Example: python3 fix_legends_from_csv.py --debug --output_folder=output/export_legends --output_file=fixed_legends_from_csv_indicators.csv --settings_labels=data/settings_labels.csv --to_fix=local_data/impactos_economicos_csv/input_values_ie.csv
 
 import glob
 import argparse
@@ -103,11 +103,13 @@ def main(args):
     PRECISION = 0.01
     TRUNC_DECIMAL = 2
     is_valid_overlapping = True
+    count_indicators = 0
         
     size_t = 5 # Intervalo de valores
 
     # for in df_files_to_fix
     for line in df_files_to_fix.itertuples():
+        count_indicators += 1
         # indicator_id|min|max|legend_id
 
         indicator_id = line.indicator_id
@@ -186,6 +188,8 @@ def main(args):
     # Save the final dataframe. Save in encoding='utf-8'
     df_final.to_csv(f'{output_folder_path}/{output_file}', index=False, encoding='utf-8')
     print(f"File {output_file} saved in {output_folder_path}")
+    # count_indicators
+    print(f"Total of indicators: {count_indicators}")
     # IS VALID OVERLAPPING
     if is_valid_overlapping:
         print("Todos os intervalos estão corretos.")
