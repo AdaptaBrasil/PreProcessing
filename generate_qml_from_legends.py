@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Run: python3 generate_qml_from_legends.py.py --output_dir=output_qmls --file_legends=local_data/qml_from_legends/csv2/legendas.csv 
+# Run: python3 generate_qml_from_legends.py --output_dir=output_qmls --file_legends=local_data/qml_from_legends/csv2/legendas.csv 
 # Opcional: --file_scenarios=local_data/qml_from_legends/csv2/cenarios.csv
 
 import pandas as pd
@@ -9,6 +9,8 @@ from xml.dom import minidom
 import os
 import argparse
 import uuid
+from decimal import Decimal
+
 
 # COnvert hex to rgba
 def hex_to_rgba(hex_color, alpha):
@@ -155,21 +157,87 @@ def create_qml_with_scenarios(legend_data, scenario_data, output_dir):
     
     print(f"\nProcesso concluído! Todos os arquivos QML foram salvos em {output_dir}")
 
+def validate_legend_values(legend_data):
+    
+    # Loop pelos dados agrupados pelo LEGEND_ID
+    for legend_id, group in legend_data.groupby('LEGEND_ID'):
+        previous_max_value = None
+        is_valid = True
+        
+        # Loop pelos registros de cada grupo (exceto quando o SYMBOL for "Dado indisponivel")
+        for idx, row in group.iterrows():
+            symbol = row['SYMBOL']
+            if symbol == 'Dado indisponivel':
+                continue  # Pular registro de dados indisponíveis
+
+            min_value = row['MINVALUE']
+            max_value = row['MAXVALUE']
+            
+            # Verificar se MINVALUE e MAXVALUE não são nulos
+            if pd.isnull(min_value) or pd.isnull(max_value):
+                print(f"Erro no registro ID {row['LEGEND_ID']}: MINVALUE ou MAXVALUE nulos no LEGEND_ID {legend_id}")
+                is_valid = False
+                continue
+            
+            # Converter para Decimal
+            min_value = Decimal(min_value) * 100
+            max_value = Decimal(max_value) * 100
+
+            # Aredondar para 1 casa decimal
+            min_value = min_value.quantize(Decimal('0'))
+            max_value = max_value.quantize(Decimal('0'))
+            
+            # Converter pra interiro 
+            min_value = int(min_value)
+            max_value = int(max_value)
+
+            
+            # Regra 1: MINVALUE deve ser menor que MAXVALUE
+            if min_value >= max_value:
+                print(f"Erro LEGEND_ID {legend_id}:  MINVALUE{min_value} >= MAXVALUE{max_value}")
+                is_valid = False
+            
+            # Regra 2: MAXVALUE anterior deve ser igual a MINVALUE atual + 0.01
+            if previous_max_value is not None:
+                expected_min_value = previous_max_value + 1
+                if min_value != expected_min_value:
+                    print(f"Erro no registro ID {row['LEGEND_ID']}: MINVALUE {min_value} não segue MAXVALUE anterior {previous_max_value} + 0.01 no LEGEND_ID {legend_id}")
+                    is_valid = False
+            
+            # Atualiza o MAXVALUE anterior para o próximo registro
+            previous_max_value = max_value
+        
+        if is_valid:
+            print(f"Todos os valores de legendas estão corretos para o LEGEND_ID: {legend_id}")
+
+    return is_valid
 
 # Função para criar o arquivo QML
 def create_qml(legend_data, output_dir):
     lista_unica_legend_id = legend_data['LEGEND_ID'].unique().tolist()
     print(f"Lista de legendas únicas: {lista_unica_legend_id}")
+    all_valid_legends = True
+    legends_erros = []
     for indicator_id in lista_unica_legend_id:
 
         # Filtrar as legendas para o indicador específico
         legend_subset = legend_data[legend_data['LEGEND_ID'] == indicator_id]
+        
         # Se o subconjunto de legendas estiver vazio, pular para o próximo indicador
         if legend_subset.empty:
             continue
 
         # Criar o nome do arquivo QML
-        print("\nProcessando o indicador:", str(indicator_id))
+        print("\n-------------------------------------------------------------------------")
+        print("Processando o indicador:", str(indicator_id))
+
+        # Validar os valores das legendas
+        print(f"Validando os valores das legendas para o indicador {indicator_id}")
+        is_valid = validate_legend_values(legend_subset)
+        if not is_valid:
+            all_valid_legends = False
+            legends_erros.append(indicator_id)
+            continue
 
         qml_filename = f"{indicator_id}.qml"
         qml_path = os.path.join(output_dir, qml_filename)
@@ -280,7 +348,10 @@ def create_qml(legend_data, output_dir):
         print(f"Gerando o arquivo QML salvo em {qml_path}")
 
     
-    print(f"\nProcesso concluído! Todos os arquivos QML foram salvos em {output_dir}")
+    if all_valid_legends:
+        print(f"\nProcesso concluído! Todos os arquivos QML foram salvos em {output_dir}")
+    else:
+        print(f"\nProcesso concluído! Alguns arquivos QML não foram salvos devido a erros nos valores das legendas: {legends_erros}")
 
 
 # Função principal
