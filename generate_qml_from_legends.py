@@ -287,7 +287,6 @@ def create_qml(legend_data, output_dir):
 def main(output_dir, file_legends, file_scenarios):
     # Carregar os dados das planilhas CSV
     legends_df = pd.read_csv(file_legends)
-    scenarios_df = pd.read_csv(file_scenarios)
 
     # Criar o diretório de saída se não existir
     if not os.path.exists(output_dir):
@@ -296,9 +295,10 @@ def main(output_dir, file_legends, file_scenarios):
     # Gerar os arquivos QML
     # Verifica se o arquivo de cenários foi fornecido
     if file_scenarios:
+        scenarios_df = pd.read_csv(file_scenarios)
         create_qml_with_scenarios(legends_df, scenarios_df, output_dir)
     else:
-        create_qml(legends_df, scenarios_df, output_dir)
+        create_qml(legends_df, output_dir)
 
 # Executar o script
 if __name__ == "__main__":
