@@ -167,7 +167,7 @@ def validate_legend_values(legend_data):
         # Loop pelos registros de cada grupo (exceto quando o SYMBOL for "Dado indisponivel")
         for idx, row in group.iterrows():
             symbol = row['SYMBOL']
-            if symbol == 'Dado indisponível':
+            if symbol == 'Dado indisponivel':
                 continue  # Pular registro de dados indisponíveis
 
             min_value = row['MINVALUE']
