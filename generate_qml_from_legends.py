@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Run: python3 generate_qml_from_legends.py --output_dir=output_qmls --file_legends=local_data/qml_from_legends/csv2/legendas.csv 
+# Run: python3 generate_qml_from_legends.py --output_dir=output/output_qmls --file_legends=local_data/qml_from_legends/csv2/legendas.csv 
 # Opcional: --file_scenarios=local_data/qml_from_legends/csv2/cenarios.csv
 
 import pandas as pd
