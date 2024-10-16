@@ -55,7 +55,7 @@ def create_qml_with_scenarios(legend_data, scenario_data, output_dir):
         for idx, legend_row in legend_subset.iterrows():
             
             # If not dado indisponível, label = "Dado indisponível"
-            if legend_row['SYMBOL'] == "Dado indisponível":
+            if legend_row['SYMBOL'] == "Dado indisponivel":
                 label = "Dado indisponível"
                 symbol = "Dado indisponivel"
             else:
@@ -87,7 +87,7 @@ def create_qml_with_scenarios(legend_data, scenario_data, output_dir):
                 pass
                 
             # If not dado indisponível, label = "Dado indisponível"
-            if legend_row['SYMBOL'] == "Dado indisponível":
+            if legend_row['SYMBOL'] == "Dado indisponivel":
                 name = "Dado indisponivel"
             else:
                 # New label: label="-0,032 - -0,014"
