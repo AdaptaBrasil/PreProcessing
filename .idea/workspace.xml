@@ -4,44 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a691a593-fd0c-4d2c-a8e1-e935964ac1e7" name="Changes" comment="Initial commit: Parquet test, HexagonMapTest and others">
-      <change beforePath="$PROJECT_DIR$/.idea/JupyterAdaptaBrasil.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/JupyterAdaptaBrasil.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Jupyter Notebook" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="RESET_MODE" value="MIXED" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;assismauro&quot;
-  }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/AdaptaBrasil/PreProcessing&quot;,
-    &quot;accountId&quot;: &quot;ce9dcaef-f001-44b0-85eb-7cd35aa60c65&quot;
-  }
-}</component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 6
-}</component>
   <component name="ProjectId" id="2lt6L4ariKHkOKHLa0FrIAq3OEf" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -51,10 +24,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -63,19 +33,6 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="D:\Atrium\Projects\AdaptaBrasil\JupyterAdaptaBrasil\geoparquet" />
-    </key>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-PY-251.26094.141" />
-        <option value="bundled-python-sdk-9f8e2b94138c-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.26094.141" />
-      </set>
-    </attachedChunks>
-  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -86,12 +43,6 @@
       <updated>1725986965164</updated>
       <workItem from="1725986970150" duration="1276000" />
       <workItem from="1727874747495" duration="262000" />
-      <workItem from="1754932732991" duration="5545000" />
-      <workItem from="1754939113961" duration="16383000" />
-      <workItem from="1755002330939" duration="1556000" />
-      <workItem from="1755006736351" duration="608000" />
-      <workItem from="1755007912535" duration="53000" />
-      <workItem from="1755012085421" duration="4528000" />
     </task>
     <task id="LOCAL-00001" summary="Dependabot alert fix: https://github.com/AdaptaBrasil/PreProcessing/security/dependabot/9">
       <created>1725988086535</created>
@@ -100,34 +51,12 @@
       <option name="project" value="LOCAL" />
       <updated>1725988086535</updated>
     </task>
-    <task id="LOCAL-00002" summary="Initial commit: Parquet test, HexagonMapTest and others">
-      <option name="closed" value="true" />
-      <created>1755019396070</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1755019396070</updated>
-    </task>
-    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Dependabot alert fix: https://github.com/AdaptaBrasil/PreProcessing/security/dependabot/9" />
-    <MESSAGE value="Initial commit: Parquet test, HexagonMapTest and others" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial commit: Parquet test, HexagonMapTest and others" />
   </component>
 </project>
