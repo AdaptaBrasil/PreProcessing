@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Run: python3 generate_qml_from_legends.py --output_dir=output_qmls --file_legends=local_data/qml_from_legends/csv2/legendas.csv 
+# Run: python3 generate_qml_from_legends.py --output_dir=output/output_qmls --file_legends=local_data/qml_from_legends/csv2/legendas.csv
 # Opcional: --file_scenarios=local_data/qml_from_legends/csv2/cenarios.csv
 
 import pandas as pd
@@ -150,7 +150,7 @@ def create_qml_with_scenarios(legend_data, scenario_data, output_dir):
 
         # Salva o novo conteúdo em um arquivo novo
         with open(qml_path, 'w') as new_file:
-            new_file.write(novo_conteudo, encoding='utf-8')
+            new_file.write(novo_conteudo)
         
         print(f"Gerando o arquivo QML salvo em {qml_path}")
 
@@ -249,7 +249,7 @@ def create_qml(legend_data, output_dir):
             
             # If not dado indisponivel, label = "Dado indisponivel"
             if legend_row['SYMBOL'] == "Dado indisponivel":
-                label = "Dado indisponivel"
+                label = "Dado indisponível"
                 symbol = "Dado indisponivel"
             else:
                 # New label: label="-0,032 - -0,014"
