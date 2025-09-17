@@ -11,6 +11,9 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
 - [Projeto: Análise Espacial de Indicadores](#projeto-análise-espacial-de-indicadores)
   - [Introdução](#introdução)
   - [Menu](#menu)
+  - [Instalação De Dependências do Projeto](#instalação-de-dependências-do-projeto)
+    - [Pré-requisitos](#pré-requisitos)
+    - [Instalação](#instalação)
   - [Merge de Indicadores Shapefiles em Malha](#merge-de-indicadores-shapefiles-em-malha)
     - [Requisitos](#requisitos)
     - [Como usar](#como-usar)
@@ -68,6 +71,37 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
       - [Erro do progress bar ](#erro-do-progress-bar-)
       - [Criando o ambiente virtual](#criando-o-ambiente-virtual)
 
+
+## Instalação De Dependências do Projeto
+
+### Pré-requisitos
+
+- Python 3.12 ou superior
+- Poetry para gerenciamento de dependências
+
+### Instalação
+```bash
+# 1.1 Clone o repositório
+git clone https://github.com/AdaptaBrasil/PreProcessing
+cd PreProcessing
+
+#  1.2 Crie e ative um ambiente virtual (opcional, mas recomendado)
+python -m venv .venv
+
+# 1.3 Ative o ambiente virtual
+source .venv/bin/activate # No Linux/MacOS
+.venv\Scripts\activate # No Windows
+
+# 2. Instale o Poetry (se necessário)
+pip install poetry
+
+# 3. Instale as dependências
+poetry install
+
+# 4. Ative o ambiente virtual
+eval $(poetry env activate)
+```
+
 ## Merge de Indicadores Shapefiles em Malha
 
 Este script Python, chamado `merge_shapefiles_mesh.py`, permite realizar o merge de indicadores armazenados em arquivos Shapefile com uma malha geoespacial. O script utiliza diversas bibliotecas Python, como `pandas`, `geopandas`, `pyproj`, entre outras, para manipulação e processamento dos dados espaciais e tabulares.
@@ -81,7 +115,7 @@ Certifique-se de ter os seguintes requisitos instalados:
 Você pode instalar as bibliotecas necessárias executando o seguinte comando:
 
 ```shell
-pip install -r requirements.txt
+poetry install
 ```
 
 ### Como usar
@@ -143,7 +177,7 @@ Certifique-se de ter os seguintes requisitos instalados:
 Você pode instalar as bibliotecas necessárias executando o seguinte comando:
 
 ```shell
-pip install -r requirements.txt
+poetry install
 ```
 
 ### Como usar
@@ -195,7 +229,7 @@ Neste exemplo, o script será executado com a máscara `local_data/rasters/*.tif
 
 ### Requisitos
 - Python 3.x
-- Bibliotecas listadas no arquivo `requirements.txt`
+- Bibliotecas listadas no arquivo `pyproject.toml`
 - Shapefile da malha (arquivo .shp)
 - Shapefiles dos indicadores (arquivos .shp)
 - Planilha de relação dos indicadores com as colunas da malha (arquivo .xlsx)
@@ -235,7 +269,7 @@ O script realiza o processamento dos indicadores e da malha para gerar as matriz
 12. Salva os resultados nos diretórios de saída.
 
 ### Observações
-- Certifique-se de que o ambiente Python tenha as bibliotecas necessárias instaladas. Caso não tenha, você pode instalar as dependências listadas no arquivo `requirements.txt`.
+- Certifique-se de que o ambiente Python tenha as bibliotecas necessárias instaladas. Caso não tenha, você pode instalar as dependências listadas no arquivo `pyproject.toml`.
 - O script suporta apenas arquivos shapefile (.shp) para a malha e os indicadores e uma planilha Excel (.xlsx) para a relação entre os indicadores e as colunas da malha.
 
 ### Saída
@@ -493,5 +527,5 @@ pip3 install progress progressbar2 alive-progress tqdm
 #### Criando o ambiente virtual
 ```shell
 conda create -n adapta_pre -c conda-forge python numpy pandas scikit-learn -y
-pip install -r requirements.txt
+poetry install
 ```
