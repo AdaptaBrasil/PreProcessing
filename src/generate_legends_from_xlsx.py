@@ -7,8 +7,7 @@ import glob
 import argparse
 import time
 import pandas as pd
-import xml.etree.ElementTree as ET
-from utilities import convert_to_hexadecimal, create_folder_if_not_exists, generate_value_pairs
+from utilities import create_folder_if_not_exists, generate_value_pairs
 
 def main(args):
     xlsx_files = args.xlsx_files

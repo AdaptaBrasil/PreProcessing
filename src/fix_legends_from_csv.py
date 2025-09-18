@@ -3,11 +3,10 @@
 
 # Example: python3 fix_legends_from_csv.py --debug --output_folder=output/export_legends --output_file=fixed_legends_from_csv_indicators.csv --settings_labels=data/settings_labels.csv --to_fix=local_data/impactos_economicos_csv/input_values_ie.csv
 
-import glob
 import argparse
 import time
 import pandas as pd
-from utilities import create_folder_if_not_exists, generate_value_pairs_fixed_zero, trunc
+from utilities import create_folder_if_not_exists, generate_value_pairs_fixed_zero
 
 def truncate_numbers(lista, x):
     # Função para truncar um único número

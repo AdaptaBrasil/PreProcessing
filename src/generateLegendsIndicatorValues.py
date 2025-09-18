@@ -3,12 +3,10 @@
 
 # Example: python3 generate_legends_from_xlsx.py --xlsx_files=local_data/legendas/entrada1/*.xlsx --debug --output_folder=output/export_legends --output_file=ultimate_legends_indicators.csv --settings_labels=data/settings_labels.csv
 
-import glob
 import argparse
 import time
 import pandas as pd
 import math
-from utilities import convert_to_hexadecimal, create_folder_if_not_exists, generate_value_pairs
 import numpy as np
 
 def main(args):

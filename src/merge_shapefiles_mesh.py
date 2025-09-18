@@ -21,7 +21,6 @@ from utilities import create_folder_if_not_exists, load_shapefile, find_indicato
 import config
 
 # Progress bar library
-from progress.bar import Bar
 
 # Ignore warnings
 warnings.filterwarnings("ignore")
@@ -114,7 +113,7 @@ def main(args):
             indicator = gpd.read_file(indicator_file_path)
 
             # Add ID column if it doesn't exist
-            if not 'ID' in indicator.columns:
+            if 'ID' not in indicator.columns:
                 indicator.insert(0, 'ID', range(1, len(indicator)+1))
 
             col_name = find_indicator_column(['CL_ORIG', 'CL_N-0ORIG', 'N_ORIG'], indicator)

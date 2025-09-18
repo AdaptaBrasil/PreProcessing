@@ -47,7 +47,7 @@ def separateValues(indicadores, setores_id):
             col_index = 3
             for column in valores_sep.columns[3:]:
                 val_id = int(column[0:column.index('-')])
-                if not(val_id in indicadores_sep.values):
+                if val_id not in indicadores_sep.values:
                     valores_sep.drop(valores_sep.columns[col_index], axis=1, inplace=True)
                 else:
                     col_index += 1
@@ -72,7 +72,7 @@ def separateProporcionalidades(indicadores, setores_id):
                 if len(column) == 0:
                     break
                 val_id = int(column[0:column.index('-')])
-                if not(val_id in indicadores_sep.values):
+                if val_id not in indicadores_sep.values:
                     proporcionalidades_sep.drop(proporcionalidades_sep.columns[col_index], axis=1, inplace=True)
                 else:
                     col_index += 1

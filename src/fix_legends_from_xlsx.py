@@ -3,12 +3,10 @@
 
 # Example: python3 fix_legends_from_xlsx.py --debug --output_folder=output/export_legends --output_file=fixed_legends_indicators.csv --settings_labels=data/settings_labels.csv --to_fix=local_data/legendas/entrada3/legendas.csv
 
-import glob
 import argparse
 import time
 import pandas as pd
-import xml.etree.ElementTree as ET
-from utilities import convert_to_hexadecimal, create_folder_if_not_exists, generate_value_pairs
+from utilities import create_folder_if_not_exists, generate_value_pairs
 
 def main(args):
     debug = args.debug

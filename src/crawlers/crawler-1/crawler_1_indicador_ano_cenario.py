@@ -105,7 +105,7 @@ def main():
 
         if data:
             save_to_csv(data, "final_results.csv")
-            print(f"Data saved to final_results.csv.")
+            print("Data saved to final_results.csv.")
 
 if __name__ == "__main__":
     start = time.time()

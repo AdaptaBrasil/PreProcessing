@@ -1,36 +1,27 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Bibliotecas de processamento de dados geoespaciais
-import geopandas as gpd
-from pyproj import CRS
-from shapely.geometry import MultiPolygon, Polygon
-import rasterio as rio
-from rasterio.warp import calculate_default_transform, reproject, Resampling
-import rtree as rt
-
-# Bibliotecas de manipulação de dados
-import pandas as pd
-import openpyxl as xl
-import numpy as np
-
-
-# Bibliotecas de visualização
-import seaborn as sns
-import matplotlib.pyplot as plt
-from matplotlib.ticker import PercentFormatter
-
-
-# Bibliotecas úteis do sistema
-import os
 import math
+import os
+import warnings
+from decimal import Decimal, InvalidOperation
+from typing import List, Tuple, Optional
 
-
-# Bibliotecas de aprendizado de máquina e funções de avaliação
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import numpy as np
+import openpyxl as xl
+import pandas as pd
+import rasterio as rio
+import rtree as rt
+import seaborn as sns
+from matplotlib.ticker import PercentFormatter
+from pyproj import CRS
+from rasterio.warp import calculate_default_transform, reproject, Resampling
+from shapely.geometry import MultiPolygon, Polygon
 from sklearn.metrics import confusion_matrix
 
-# Ignorar warnings
-import warnings
+
 warnings.filterwarnings("ignore")
 
 def version_all_libraries():
@@ -49,8 +40,107 @@ def version_all_libraries():
 
 # version_all_libraries()
 
+def generate_continuous_intervals(min_value: float, max_value: float, n_terms: int) -> List[Tuple[float, float]]:
+    """
+    Generate n continuous intervals from min_value to max_value.
+    
+    Each interval follows the pattern where the next minimum value is 
+    the previous maximum value plus 0.01, ensuring continuity.
+    
+    Args:
+        min_value: Starting minimum value for the first interval
+        max_value: Ending maximum value for the last interval  
+        n_terms: Number of intervals to generate
+        
+    Returns:
+        List of tuples containing (min, max) for each interval
+        
+    Raises:
+        ValueError: If n_terms <= 0 or min_value >= max_value
+    """
+    if n_terms <= 0:
+        raise ValueError("Number of terms must be greater than 0")
+    
+    if min_value >= max_value:
+        raise ValueError("Minimum value must be less than maximum value")
+    
+    # Calculate the total range and interval size
+    total_range = max_value - min_value
+    interval_size = total_range / n_terms
+    
+    intervals: List[Tuple[float, float]] = []
+    current_min = min_value
+    
+    for i in range(n_terms):
+        if i == n_terms - 1:  # Last interval
+            current_max = max_value
+        else:
+            current_max = round(current_min + interval_size, 2)
+        
+        intervals.append((current_min, current_max))
+        
+        # Next minimum is current maximum + 0.01 (continuous pattern)
+        current_min = round(current_max + 0.01, 2)
+    
+    return intervals
+
+def validate_continuous_intervals(intervals: List[Tuple[float, float]]) -> Tuple[bool, List[str]]:
+    """
+    Validate if a list of intervals is continuous.
+    
+    Checks that each interval follows the pattern where the next minimum 
+    value is the previous maximum value plus 0.01, ensuring continuity
+    as expected by the existing validation logic.
+    
+    Args:
+        intervals: List of tuples containing (min, max) for each interval
+        
+    Returns:
+        Tuple containing (is_valid, error_messages)
+        - is_valid: Boolean indicating if all intervals are continuous
+        - error_messages: List of validation error messages
+        
+    Raises:
+        ValueError: If intervals list is empty or contains invalid data
+    """
+    if not intervals:
+        raise ValueError("Intervals list cannot be empty")
+    
+    errors: List[str] = []
+    
+    # Sort intervals by minimum value to ensure proper order
+    sorted_intervals = sorted(intervals, key=lambda x: x[0])
+    
+    prev_max_val: Optional[float] = None
+    
+    for i, (min_val, max_val) in enumerate(sorted_intervals):
+        # Validate min < max for each interval
+        if min_val >= max_val:
+            errors.append(
+                f"Interval {i + 1}: Minimum value ({min_val}) must be less than maximum value ({max_val})"
+            )
+        
+        # Check continuity with previous interval
+        if prev_max_val is not None:
+            try:
+                # Using Decimal for precision (same as existing validation)
+                expected_min = prev_max_val + 0.01
+                if Decimal(str(min_val)) - Decimal(str(prev_max_val)) != Decimal("0.01"):
+                    errors.append(
+                        f"Interval {i + 1}: Not continuous. Minimum value {min_val} should be {expected_min} to follow previous maximum value"
+                    )
+            except InvalidOperation:
+                errors.append(f"Interval {i + 1}: Invalid numeric values for continuity validation")
+        
+        prev_max_val = max_val
+    
+    is_valid = len(errors) == 0
+    return is_valid, errors
+
 # Função trunc para truncar valores com base no número de casas decimais
 def trunc(value, decimal_places):
+    if value == 0:
+        value = 0.0
     multiplier = 100 ** decimal_places
     truncated_value = math.trunc(value * multiplier) / multiplier
     return truncated_value
@@ -236,7 +326,6 @@ def convert_multi_to_single_polygon(geometry):
     # Caso contrário, retorne a geometria original
     return geometry
 
-import matplotlib.pyplot as plt
 
 def plot_mesh_shapefile(mesh):
     # Create a new figure
