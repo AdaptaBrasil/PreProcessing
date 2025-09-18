@@ -57,14 +57,21 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
     - [Observações](#observações-5)
     - [Saída](#saída-5)
     - [Exemplo de Uso](#exemplo-de-uso-5)
-  - [Reprojeção de Malhas com Sufixo](#reprojeção-de-malhas-com-sufixo)
-    - [Descrição](#descrição-1)
+  - [Geração de Legendas e Descrição a partir de Valores ](#geração-de-legendas-e-descrição-a-partir-de-valores-)
     - [Requisitos](#requisitos-6)
     - [Como usar](#como-usar-6)
     - [Funcionamento](#funcionamento-6)
-    - [Observações](#observações-6)
     - [Saída](#saída-6)
+    - [Observações](#observações-6)
     - [Exemplo de Uso](#exemplo-de-uso-6)
+  - [Reprojeção de Malhas com Sufixo](#reprojeção-de-malhas-com-sufixo)
+    - [Descrição](#descrição-1)
+    - [Requisitos](#requisitos-7)
+    - [Como usar](#como-usar-7)
+    - [Funcionamento](#funcionamento-7)
+    - [Observações](#observações-7)
+    - [Saída](#saída-7)
+    - [Exemplo de Uso](#exemplo-de-uso-7)
   - [Licença ](#licença-)
   - [Erros Comuns ](#erros-comuns-)
       - [Erro do rtree ](#erro-do-rtree-)
@@ -444,6 +451,69 @@ python3 generate_legends_from_xlsx.py --xlsx_files=local_data/legendas/entrada1/
 ```
 
 Esse comando processará os arquivos XLSX encontrados no diretório `local_data/legendas/entrada1/`, ativando o modo de depuração. Os resultados serão salvos na pasta `output/export_legends` com o nome do arquivo de saída `legends_indicators.csv`. O arquivo `settings_labels.csv` será utilizado para obter informações sobre as legendas.
+
+## Geração de Legendas e Descrição a partir de Valores <a name="legendas-descricao-valores"></a>
+
+Este script, `generate_legends_description_from_values.py`, lê uma planilha de valores por indicador e uma planilha de descrição, calcula faixas contínuas (bins) para cada indicador com base no mínimo e máximo observados, gera as legendas usando um arquivo de rótulos (labels) e preenche a coluna `legenda` na planilha de descrição com o ID da legenda correspondente a cada indicador.
+
+### Requisitos
+
+- Python 3.x
+- Bibliotecas: `pandas`, `openpyxl`
+
+As dependências do projeto já incluem essas bibliotecas via Poetry.
+
+### Como usar
+
+Execute o script informando os caminhos dos arquivos de valores, descrição, o CSV de labels e a pasta de saída:
+
+```bash
+python3 src/generate_legends_description_from_values.py \
+  --values_file local_data/novos_dados/impactos3_1709_seg_hid/valores.xlsx \
+  --description_file local_data/novos_dados/impactos3_1709_seg_hid/descricao.xlsx \
+  --output_folder local_data/temp/impactos3_1709_seg_hid/ \
+  --settings_labels data/settings_labels.csv \
+  --debug
+```
+
+Parâmetros:
+
+- `--values_file`: Arquivo Excel com colunas de indicadores. A coluna `id` (se existir) será descartada. Os nomes das colunas devem começar com o código do indicador, opcionalmente seguido de sufixos separados por `-` (ex.: `123-ALGUM_TEXTO`). O prefixo antes de `-` é usado como `indicator_id`.
+- `--description_file`: Arquivo Excel de descrição contendo a coluna `codigo` (ID do indicador). O script cria/preenche a coluna `legenda` com o ID da legenda gerada.
+- `--settings_labels`: CSV com as definições das classes de legenda (campos esperados: `label`, `color`, `order`, `tag`). Ex.: `data/settings_labels.csv`.
+- `--output_folder`: Pasta onde os arquivos de saída serão gravados.
+- `--debug`: Opcional para logs detalhados.
+
+### Funcionamento
+
+1. Lê `settings_labels.csv`, `valores.xlsx` e `descricao.xlsx`.
+2. Para cada indicador em `valores.xlsx`, calcula `min` e `max` e gera 5 intervalos contínuos (bins), validando a continuidade entre eles.
+3. Gera uma tabela de legendas com colunas: `codigo` (ID da legenda por indicador), `label`, `cor`, `minimo`, `maximo`, `ordem`.
+4. Faz o match entre `descricao.codigo` (ID do indicador) e o `indicator_id` da legenda, preenchendo `descricao.legenda` com o ID da legenda correspondente.
+5. Salva os resultados em Excel na pasta de saída.
+
+### Saída
+
+São gerados dois arquivos em `--output_folder`:
+
+- `legenda.xlsx`: Tabela de legendas por indicador.
+- `descricao.xlsx`: Planilha de descrição atualizada com a coluna `legenda` preenchida.
+
+### Observações
+
+- O script espera colunas numéricas válidas para cálculo de `min` e `max`; se houver `NaN` apenas nessas colunas, ocorrerá erro.
+- O número de classes é inferido a partir de `settings_labels.csv` (tipicamente 5). Labels com texto "Dado indisponível" têm `minimo`/`maximo` vazios.
+- O script normaliza tipos (numéricos) para evitar falhas de correspondência na etapa de merge entre descrição e legendas.
+
+### Exemplo de Uso
+
+```bash
+python3 src/generate_legends_description_from_values.py \
+  --values_file local_data/novos_dados/impactos3_1709_seg_hid/valores.xlsx \
+  --description_file local_data/novos_dados/impactos3_1709_seg_hid/descricao.xlsx \
+  --output_folder local_data/temp/impactos3_1709_seg_hid/ \
+  --settings_labels data/settings_labels.csv
+```
 
 ## Reprojeção de Malhas com Sufixo
 
