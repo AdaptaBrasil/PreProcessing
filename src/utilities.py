@@ -84,6 +84,7 @@ def generate_continuous_intervals(min_value: float, max_value: float, n_terms: i
     
     return intervals
 
+
 def validate_continuous_intervals(intervals: List[Tuple[float, float]]) -> Tuple[bool, List[str]]:
     """
     Validate if a list of intervals is continuous.
@@ -145,7 +146,17 @@ def trunc(value, decimal_places):
     truncated_value = math.trunc(value * multiplier) / multiplier
     return truncated_value
 
-
+def trunc_fix(value, decimal_places):
+    # o OBJETIVO DESSA FUNÇÃO É SIMPLISTE ADICIONAR UM ZERO SE O VALOR TIVER APENAS UM NUMERO COMO CASA DECIMA, EXEPLO 1.0 -> 1.00, se o valor ja tiver 2 casas decimais, não faz nada
+    my_value = str(value)
+    if '.' in my_value:
+        partes = my_value.split('.')
+        if len(partes[1]) < decimal_places:
+            my_value = partes[0] + '.' + partes[1].ljust(decimal_places, '0')
+    else:
+        my_value = my_value + '.' + '0' * decimal_places
+    return my_value
+    
 def generate_value_pairs_fixed_zero(a1, an, numero_termos):
     termos = []
     numero_termos += 1

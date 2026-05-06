@@ -3,11 +3,12 @@
 
 """
 Example:
+impactos_1909_1  impactos_1909_2  impactos_1909_impac
 
 python3 src/generate_legends_description_from_values.py \
-    --values_file local_data/novos_dados/impactos3_1709_seg_hid/valores.xlsx \
-    --description_file local_data/novos_dados/impactos3_1709_seg_hid/descricao.xlsx \
-    --output_folder=local_data/temp/impactos3_1709_seg_hid/ \
+    --values_file local_data/novos_dados/impactos_1909_2/valores.xlsx \
+    --description_file local_data/novos_dados/impactos_1909_2/descricao.xlsx \
+    --output_folder=local_data/novos_dados/impactos_1909_2/ \
     --settings_labels=data/settings_labels.csv
 
 """
@@ -15,7 +16,7 @@ import argparse
 import time
 import pandas as pd
 import math
-from utilities import generate_continuous_intervals, validate_continuous_intervals, trunc
+from utilities import generate_continuous_intervals, validate_continuous_intervals, trunc_fix, trunc
 
 
 class ModelMinMax:
@@ -81,6 +82,10 @@ def main(args):
     
     if df_values.empty or df_description.empty or setting_labels.empty:
         raise ValueError("One of the input files is empty.")
+    
+    # Se a coluna 'legenda' existir em df_description, removê-la para evitar conflitos
+    if 'legenda' in df_description.columns:
+        df_description = df_description.drop(columns=['legenda'])
 
     # CONFIGURE DATAFRAME
     column_relation_data = {
@@ -127,20 +132,27 @@ def main(args):
         # Validate continuity of intervals
         is_valid, error_messages = validate_continuous_intervals(values)
         if not is_valid:
-            print(f"Validation errors for indicator {code}:")
+            print(f"Validation errors for indicator_id {code}:")
             for error in error_messages:
                 print(error)
-            raise ValueError(f"Intervals for indicator {code} are not continuous.")
+            raise ValueError(f"Intervals for indicator_id {code} are not continuous.")
         else:
-            print(f"Intervals for indicator {code} are continuous and valid.")
+            print(f"Intervals for indicator_id {code} (legend {legend_id}) are continuous and valid.")
+            if str(legend_id) == '25':
+                print("Intervals:", values)
+                for v in values:
+                    print(v)
+                # exit(1)
         
         for j, sl in setting_labels.iterrows():
             
             minimo = ""
             maximo = ""
             if sl.label != 'Dado indisponível':
-                minimo = trunc(values[j][0], DECIMAL_PLACES)
-                maximo = trunc(values[j][1], DECIMAL_PLACES)
+                #minimo = trunc_fix(values[j][0], DECIMAL_PLACES)
+                #maximo = trunc_fix(values[j][1], DECIMAL_PLACES)
+                minimo = values[j][0]
+                maximo = values[j][1]
 
             new_row = {
                 'codigo': legend_id,
@@ -155,8 +167,8 @@ def main(args):
         legend_id+=1
     
     
-    print("\n3. Final dataframe:")
-    print(df_final.head(10))
+    print("\n3. Final dataframe legend:")
+    print(df_final.head(6))
     
     
     # ADD COLUMN 'legenda' IN df_description:
