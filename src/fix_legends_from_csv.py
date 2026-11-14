@@ -42,7 +42,7 @@ def verify_list(lista, precision):
             # print(f"\ncurrent_end: {current_end}, next_start: {next_start}, expected_start: {expected_start}")
             # print(f"abs(next_start - expected_start): {abs(next_start - expected_start)} > 1e-9: {abs(next_start - expected_start) > 1e-9}")
             # Verifica se o valor atual é diferente do esperado
-            if abs(abs(next_start) - abs(expected_start)) > 1e-9:  # Usa uma pequena margem para evitar erros de ponto flutuante
+            if abs(next_start - expected_start) > 1e-9:  # Usa uma pequena margem para evitar erros de ponto flutuante
                 return False
     
     return True
@@ -139,8 +139,10 @@ def main(args):
             if debug:
                 print(f"OLD interval: {interval_min_max_list}")
 
-            # Equanto verify_list não for True, continue ajustando
-            while not verify_list(interval_min_max_list, PRECISION):
+            # Equanto verify_list não for True, continue ajustando (no máximo 10 vezes)
+            for _ in range(10):
+                if verify_list(interval_min_max_list, PRECISION):
+                    break
                 interval_min_max_list = fix_precision_interval_min_max_list(interval_min_max_list, PRECISION)
                 interval_min_max_list = truncate_numbers(interval_min_max_list, TRUNC_DECIMAL)
                 print("Ajustando valores...")
@@ -208,7 +210,7 @@ if __name__ == "__main__":
                         help="Name of the settings_labels.csv file. Labels for the legends: label, color, order, tag.")
     parser.add_argument("--to_fix", required=True,
                         help="File to fix.") 
-    parser.add_argument("--output_folder", default='output', required=True,
+    parser.add_argument("--output_folder", default='output',
                         help="Path to the directory where the generated files will be saved.")
     parser.add_argument("--output_file", default='legends_indicators.csv', required=False,
                         help="Name of the output file.")

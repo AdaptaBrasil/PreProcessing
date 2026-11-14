@@ -11,15 +11,19 @@ import glob
 import time
 
 def reproject_shapefiles(input_mask, target_epsg, suffix, output_dir=None):
-    if output_dir is None:
-        output_dir = os.path.dirname(input_mask)
-    else:
+    """Reproject every .shp matching `input_mask`. Output goes to `output_dir`,
+    or next to each source file when it is not given."""
+    if output_dir is not None:
         os.makedirs(output_dir, exist_ok=True)
+    suffix = suffix.lstrip('_') if suffix else suffix
 
     shapefiles = [f for f in glob.glob(input_mask, recursive=True) if f.lower().endswith('.shp')]
 
     for shapefile in tqdm(shapefiles, desc="Reprojecting shapefiles"):
         gdf = gpd.read_file(shapefile)
+        if gdf.crs is None:
+            print(f"WARNING: {shapefile} has no CRS (.prj missing?). Skipping...")
+            continue
         # Check if the shapefile is already in the desired EPSG
         if gdf.crs.to_epsg() == target_epsg:
             print("Already in the desired EPSG. Skipping...")
@@ -33,7 +37,7 @@ def reproject_shapefiles(input_mask, target_epsg, suffix, output_dir=None):
         new_filename = f"{filename}_{suffix}{ext}" if suffix else f"{filename}{ext}"
         print(f"\nSaving reprojected shapefile to {new_filename}")
 
-        output_path = os.path.join(output_dir, new_filename)
+        output_path = os.path.join(output_dir or os.path.dirname(shapefile), new_filename)
         reprojected_gdf.to_file(output_path)
 
 def main():
@@ -46,7 +50,7 @@ def main():
     parser.add_argument("--suffix", required=False,
                         help="Suffix to be added to the output shapefile names.")
     parser.add_argument("--output_dir", required=False,
-                        help="Output directory for the reprojected shapefiles.")
+                        help="Output directory for the reprojected shapefiles (default: next to each input file).")
 
     args = parser.parse_args()
 

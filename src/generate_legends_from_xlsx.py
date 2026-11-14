@@ -60,7 +60,7 @@ def main(args):
         df_values = df_values.sort_index(axis=1)
 
         # Exclude columns without numbers in the name
-        df_values = df_values[df_values.columns[df_values.columns.str.contains('\d')]]
+        df_values = df_values[df_values.columns[df_values.columns.astype(str).str.contains(r'\d')]]
 
         # Pattern of column name xxxx-yyyy or xxxx-yyyy-z: find all columns with the same number at the beginning of the name up to the hyphen and group them
         # Create a dictionary with the column name and its value. The value should be a list of values from each row that had the column name pattern
@@ -71,7 +71,6 @@ def main(args):
             else:
                 dict_columns[column.split('-')[0]] = [column]
 
-        df_local = pd.DataFrame(column_relation_data)
         data = []
 
         for key in dict_columns.keys():
@@ -116,9 +115,8 @@ def main(args):
             
                 control_index_legend += 1
             legend_id += 1
-        df_local = df_local.append(pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id']), ignore_index=True)
-
-        df_final = df_final.append(df_local, ignore_index=True)
+        df_local = pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id'])
+        df_final = pd.concat([df_final, df_local], ignore_index=True)
 
     # Save the final dataframe
     # Change data types
@@ -139,7 +137,7 @@ if __name__ == "__main__":
                         help="Activate debug mode.")
     parser.add_argument("--settings_labels", default='settings_labels.csv', required=False,
                         help="Name of the settings_labels.csv file. Labels for the legends: label, color, order, tag.") 
-    parser.add_argument("--output_folder", default='output', required=True,
+    parser.add_argument("--output_folder", default='output',
                         help="Path to the directory where the generated files will be saved.")
     parser.add_argument("--output_file", default='legends_indicators.csv', required=False,
                         help="Name of the output file.")

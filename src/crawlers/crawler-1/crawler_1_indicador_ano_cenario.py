@@ -1,12 +1,9 @@
-import requests
-import pandas as pd
 import time
 
-import urllib3
+import pandas as pd
+import requests
 
-# Suppress SSL warnings
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
+REQUEST_TIMEOUT = 60  # seconds
 
 
 def get_indicator_data(indicator_id, year, scenario):
@@ -14,7 +11,12 @@ def get_indicator_data(indicator_id, year, scenario):
     params = {}
     url = f"https://sistema.adaptabrasil.mcti.gov.br/api/mapa-dados/BR/municipio/{indicator_id}/{year}/{scenario}"
     print(f"Fetching data for indicator in URL: {url}")
-    response = requests.get(url, params=params, verify=False)
+    try:
+        response = requests.get(url, params=params, timeout=REQUEST_TIMEOUT)
+    except requests.RequestException as e:
+        print(f"Request error for indicator {indicator_id}, year {year}, scenario {scenario}: {e}
+")
+        return None
 
     if response.ok:
         return response.json()
@@ -28,11 +30,7 @@ def get_data_for_indicators(indicators):
     data = []
 
     for indicator in indicators:
-        years = indicator["years"]
-        if "," in years:
-            years = years.split(",")
-        else:
-            years = [years]
+        years = [y.strip() for y in str(indicator["years"]).split(",") if y.strip()]
 
         indicator_id = indicator["indicator_id"]
 
@@ -57,14 +55,14 @@ def get_indicators(api_url):
     params = {}
 
     try:
-        response = requests.get(api_url, params=params, verify=False)
+        response = requests.get(api_url, params=params, timeout=REQUEST_TIMEOUT)
 
         if response.status_code == 200:
             data = response.json()
             indicator_data = []
 
             for item in data:
-                if item.get("sep_id") == 6 and item.get("level") >= 2:
+                if item.get("sep_id") == 6 and (item.get("level") or 0) >= 2:
                     indicator_data.append({
                         "indicator_id": item["id"],
                         "sep_id": item["sep_id"],

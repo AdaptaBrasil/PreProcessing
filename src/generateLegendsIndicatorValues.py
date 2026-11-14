@@ -1,7 +1,7 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 # coding: utf-8
 
-# Example: python3 generate_legends_from_xlsx.py --xlsx_files=local_data/legendas/entrada1/*.xlsx --debug --output_folder=output/export_legends --output_file=ultimate_legends_indicators.csv --settings_labels=data/settings_labels.csv
+# Example: python3 generateLegendsIndicatorValues.py --input_file=local_data/legendas/valores.csv --settings_labels=data/settings_labels.csv --output_file=output/legends_indicators.csv
 
 import argparse
 import time
@@ -37,12 +37,7 @@ def main(args):
         'order': pd.Series(dtype='int')
     }
 
-    df_final = pd.DataFrame(column_relation_data)
-    control_index_legend = 1000
-    legend_id = 100
-    size_t = 5  # Intervalo de valores
-
-    data = []
+    rows = []
 
     # Read the input XLSX file using pandas
     df_values = pd.read_csv(input_file, sep=';')
@@ -51,17 +46,14 @@ def main(args):
     df_values = df_values.sort_index(axis=1)
 
 
-    df_local = pd.DataFrame(column_relation_data)
-    data = []
-
-    for index, value in df_values.iterrows():
+    for index, value in df_values.reset_index(drop=True).iterrows():
         if math.isnan(value.min_value):
             continue
         step = (value.max_value - value.min_value)/5
         k = 1
         for j, sl in setting_labels.iterrows():
             new_row = {
-                'id': k + (index - 1) * 6,
+                'id': k + index * len(setting_labels),
                 'label': sl.label,
                 'color': sl.color,
                 'minvalue': (value.min_value + (k - 1) * step) if sl.tag != 'None' else np.nan,
@@ -71,10 +63,11 @@ def main(args):
                 'tag': sl.tag,
                 'order': sl.order
             }
-            df_final = df_final.append(new_row, ignore_index=True)
+            rows.append(new_row)
             k+=1
 
-    # Save the final dataframe
+    df_final = pd.concat([pd.DataFrame(column_relation_data), pd.DataFrame(rows)], ignore_index=True)
+
     # Change data types
     df_final['id'] = df_final['id'].astype(int)
     df_final['legend_id'] = df_final['legend_id'].astype(int)

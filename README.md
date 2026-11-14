@@ -173,13 +173,13 @@ Neste exemplo, o script será executado com o arquivo Shapefile da malha em `loc
 
 ## Merge de Indicadores Rasters em Malha
 
-Este script Python, denominado `merge_rasters_mesh.py`, permite realizar o merge de indicadores armazenados em arquivos Raster com uma malha geoespacial. O script utiliza bibliotecas Python como `rasterio`, `numpy`, `pandas`, `cv2` (OpenCV), entre outras, para processar dados espaciais e tabulares.
+Este script Python, denominado `merge_rasters_mesh.py`, permite realizar o merge de indicadores armazenados em arquivos Raster com uma malha geoespacial. O script utiliza bibliotecas Python como `rasterio`, `numpy`, `pandas`, entre outras, para processar dados espaciais e tabulares.
 
 ### Requisitos
 Certifique-se de ter os seguintes requisitos instalados:
 
 - Python 3
-- Bibliotecas Python: `rasterio`, `numpy`, `pandas`, `opencv-python-headless`, `progress`, `pyproj`
+- Bibliotecas Python: `rasterio`, `numpy`, `pandas`, `progress`, `pyproj`
 
 Você pode instalar as bibliotecas necessárias executando o seguinte comando:
 

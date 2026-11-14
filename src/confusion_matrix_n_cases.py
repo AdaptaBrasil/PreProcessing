@@ -10,7 +10,7 @@ import argparse
 import time
 
 # My functions utilities
-from utilities import *
+from utilities import create_folder_if_not_exists, find_indicator_column, find_path_containing_string, generate_confusion_matrix, load_shapefile
 import config
 
 
@@ -120,12 +120,14 @@ def main(args):
         patterns = ['CL_ORIG', 'CL_N-0ORIG', 'N_ORIG']
         data_field = find_indicator_column(patterns, intersection)
         if data_field is None:
-            data_field = 'ERROR: Indicator column not found!'
+            print(f"ERROR: Indicator column not found in {indicator_shp_path}")
+            continue
 
+        # include_lowest=True keeps values equal to 0 in the first class
         intersection['indicator_label'] = pd.cut(x=intersection[data_field], bins=CONFUSION_BINS,
-                                                 labels=CONFUSION_LABELS)
+                                                 labels=CONFUSION_LABELS, include_lowest=True)
         intersection['estimation_label'] = pd.cut(x=intersection['values'], bins=CONFUSION_BINS,
-                                                  labels=CONFUSION_LABELS)
+                                                  labels=CONFUSION_LABELS, include_lowest=True)
 
         intersection = intersection.dropna(
             subset=['indicator_label', 'estimation_label'])
@@ -151,8 +153,8 @@ if __name__ == "__main__":
                         help="Path to the spreadsheet with the relationships of indicators by columns.")
     parser.add_argument("--debug", action='store_true',
                         help="Activate debug mode.")
-    parser.add_argument("--output_folder", default='output', required=True,
-                        help="Path to the directory that will be used to save the generated files.")
+    parser.add_argument("--output_folder", default='output',
+                        help="Path to the directory that will be used to save the generated files (default: output).")
     args = parser.parse_args()
 
     initial_time = time.time()

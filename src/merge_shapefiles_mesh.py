@@ -3,30 +3,39 @@
 
 # Examples: python3 merge_shapefiles_mesh.py --mesh_file=local_data/malha/ferrovias.shp --indicator_files_mask=local_data/indicadores/*.shp --column_relation_file=relacao_arquivos_colunas_malha_rodovias.xlsx --new_mesh_file=indicadores_rodovias.shp --average --debug --output_folder=output/result_shapefiles_mesh
 #           python3 merge_shapefiles_mesh.py --mesh_file=D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\Ferrovias\FerroviasEmOperacao.shp --indicator_files_mask=D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\02_FERROVIAS_Adriano\04_BASE_DE_DADOS/*.shp --column_relation_file=teste.xlsx --new_mesh_file=indicadores_ferrovias_teste.shp --average --debug --output_folder=D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\output\teste
-# Data manipulation and geospatial libraries
-import pandas as pd
+
+import argparse
+import glob
+import os
+import time
+import traceback
+from datetime import datetime
+
 import geopandas as gpd
+import pandas as pd
 from pyproj import CRS
 
-# System and utility libraries
-import os
-import glob
-from datetime import datetime
-import argparse
-import time
-import warnings
-
-# Custom utility functions and configurations
-from utilities import create_folder_if_not_exists, load_shapefile, find_indicator_column
 import config
+from utilities import create_folder_if_not_exists, find_indicator_column, load_shapefile, next_indicator_column_id
 
-# Progress bar library
+MESH_PK = 'mesh_file_pk'
 
-# Ignore warnings
-warnings.filterwarnings("ignore")
+
+def area_weighted_mean(mesh, indicator):
+    """Mean of CL_ORIG per mesh feature, weighted by the area each indicator
+    feature overlaps it. Falls back to a plain mean where all overlaps have
+    zero area (e.g. point/line indicators)."""
+    indicator = indicator[indicator['CL_ORIG'].notna()]
+    pieces = gpd.overlay(mesh[[MESH_PK, 'geometry']], indicator[['CL_ORIG', 'geometry']],
+                         how='intersection', keep_geom_type=False)
+    pieces['weight'] = pieces.geometry.area
+    pieces['weighted'] = pieces['CL_ORIG'] * pieces['weight']
+    sums = pieces.groupby(MESH_PK)[['weighted', 'weight']].sum()
+    result = sums['weighted'] / sums['weight'].where(sums['weight'] > 0)
+    return result.fillna(pieces.groupby(MESH_PK)['CL_ORIG'].mean())
+
 
 def main(args):
-    # Input files with shapefile data for indicators and mesh
     indicator_files_mask = args.indicator_files_mask
     mesh_file_path = args.mesh_file
     mesh_file_pk = args.mesh_file_pk
@@ -49,130 +58,95 @@ def main(args):
         print("Target Filters:", target_filters)
         print("Default CRS:", config.DEFAULT_CRS, "\n")
 
-    # Create output folder if it doesn't exist
     create_folder_if_not_exists(output_folder_path)
 
-    # Concatenate the output/ with the output file name
-    updated_mesh_file_path = os.path.join(
-        f'{output_folder_path}', updated_mesh_file_path)
-    column_relation_file_name = os.path.join(
-        f'{output_folder_path}', column_relation_file_name)
+    updated_mesh_file_path = os.path.join(output_folder_path, updated_mesh_file_path)
+    column_relation_file_name = os.path.join(output_folder_path, column_relation_file_name)
 
-    # Load the shapefile mesh
-    mesh = load_shapefile(mesh_file_path, debug=debug,
-                          change_crs=True, epsg=config.DEFAULT_CRS, set_buffer=True)
+    # Mesh line features are buffered by 10 m so they have an area to intersect
+    mesh = load_shapefile(mesh_file_path, debug=debug, change_crs=True, epsg=config.DEFAULT_CRS, set_buffer=True)
     print("Number of items in the mesh: ", len(mesh), "\n")
-    mesh.rename(columns={mesh_file_pk: 'mesh_file_pk'}, inplace=True) # force unique name for mesh pk
+    if mesh_file_pk not in mesh.columns:
+        raise SystemExit(f"Primary key column '{mesh_file_pk}' not found in the mesh. "
+                         f"Available columns: {list(mesh.columns)}")
+    mesh = mesh.rename(columns={mesh_file_pk: MESH_PK})  # force unique name for mesh pk
     # remove CL_ORIG column, if exists, to not make a mess with indicator CL_ORIG column.
-    if 'CL_ORIG' in mesh.columns:
-        mesh.drop('CL_ORIG', inplace=True, axis=1)
-    mesh_file_pk = 'mesh_file_pk'
-    # Get next column ID
-    nextColId = 1
-    if 'I_1' in mesh.columns:
-        lastCol = mesh.columns[len(mesh.columns)-2]
-        nextColId = int(lastCol[2:]) + 1
+    mesh = mesh.drop(columns=['CL_ORIG'], errors='ignore')
 
+    next_col_id = next_indicator_column_id(mesh.columns)
     if debug:
-        print("Next column ID: ", nextColId)
+        print("Next column ID: ", next_col_id)
 
-    # Verify if the columns relation file exists.
-    if nextColId > 1:
+    # Only resume from the relation file when the mesh already carries I_<n> columns
+    # (i.e. the mesh passed in is the output of a previous run).
+    if next_col_id > 0 and os.path.exists(column_relation_file_name):
         print("Columns relation file exists. Opening...")
-        # Load the columns relation file
         df_column_relation = pd.read_excel(column_relation_file_name)
     else:
         print("Columns relation file doesn't exist. Creating...")
-        # Create the columns relation file
-        column_relation_data = {
-            'file_name': [],
-            'column': []
-        }
-        df_column_relation = pd.DataFrame(column_relation_data)
+        df_column_relation = pd.DataFrame({'file_name': [], 'column': []})
 
     if debug:
         print("Columns relation file head:  ", df_column_relation.head())
 
-    indicator_shapefiles = glob.glob(indicator_files_mask, recursive=True)
-
+    indicator_shapefiles = sorted(glob.glob(indicator_files_mask, recursive=True))
     print("Number of indicator files found: ", len(indicator_shapefiles))
 
-    # Print the names of the .shp files found
-    for i, indicator_file_path in enumerate(indicator_shapefiles):
+    def record(file_name, column):
+        nonlocal df_column_relation
+        df_column_relation = pd.concat(
+            [df_column_relation, pd.DataFrame([{'file_name': file_name, 'column': column}])],
+            ignore_index=True)
+        df_column_relation.to_excel(column_relation_file_name, index=False)
+
+    for indicator_file_path in indicator_shapefiles:
         try:
-            # Get the file name without extension
-            file_name_only = os.path.basename(
-                indicator_file_path).split('.')[0]
-            already_processed = df_column_relation.loc[df_column_relation['file_name']
-                                                       == file_name_only]
-            if len(already_processed) > 0:
+            file_name_only = os.path.basename(indicator_file_path).split('.')[0]
+            if (df_column_relation['file_name'] == file_name_only).any():
                 continue
 
-            print(
-                f"\nStarting the processing of file {i}: {indicator_file_path} {datetime.now()}")
+            print(f"\nStarting the processing of file {indicator_file_path} {datetime.now()}")
             indicator = gpd.read_file(indicator_file_path)
 
-            # Add ID column if it doesn't exist
             if 'ID' not in indicator.columns:
-                indicator.insert(0, 'ID', range(1, len(indicator)+1))
+                indicator.insert(0, 'ID', range(1, len(indicator) + 1))
 
             col_name = find_indicator_column(['CL_ORIG', 'CL_N-0ORIG', 'N_ORIG'], indicator)
             if col_name is None:
-                if debug:
-                    print(f'ERROR: Column not found in {indicator_file_path}')
-                new_row = {'file_name': file_name_only, 'column': col_name}
-                df_column_relation = df_column_relation.append(
-                    new_row, ignore_index=True)
+                print(f'ERROR: Indicator column not found in {indicator_file_path}')
+                record(file_name_only, None)
                 continue
-            else:
-                indicator.rename(columns={col_name: "CL_ORIG"}, inplace=True)
-            # TODO: Mexer no filtro aqui 
-            if target_filters != None:
-                filters = target_filters.split(",")
-                for i_filter, filter in enumerate(filters):
-                    print(f"Filtro {i_filter}: {filter}")
+            indicator = indicator.rename(columns={col_name: "CL_ORIG"})
 
-                print("\nCollumns: ", indicator.columns)
+            # TODO: target_filters is not applied yet; it is only printed.
+            if target_filters is not None:
+                for i_filter, filter_name in enumerate(target_filters.split(",")):
+                    print(f"Filtro {i_filter}: {filter_name}")
+                print("\nColumns: ", indicator.columns)
 
-            if 'FILT_RISC' in indicator.columns:
-                # Apply FILT_RISC rule:
-                indicator = indicator[indicator.FILT_RIS != 'Nao']
-            # TODO
+            # FILT_RISC rule: drop features flagged 'Nao'
+            for filter_column in ('FILT_RISC', 'FILT_RIS'):
+                if filter_column in indicator.columns:
+                    indicator = indicator[indicator[filter_column] != 'Nao']
+                    break
 
-            
             if debug:
                 print("Old CRS of the indicator:", indicator.crs)
-
-            # Change to EPSG 5880 CRS or Default CRS
             indicator = indicator.to_crs(CRS.from_epsg(config.DEFAULT_CRS))
             if debug:
                 print("New CRS of the indicator:", indicator.crs)
 
-            # Perform the spatial join based on geometry intersection
-            intersection = gpd.sjoin(
-                mesh, indicator, how='inner', op='intersects')
-
-            # Calculate the weighted average or maximum value
             if is_average:
-                intersection['weight'] = intersection.geometry.area
-                weighted_avg = intersection.groupby(mesh_file_pk).apply(
-                    lambda x: sum(x['CL_ORIG'] * x['weight']) / sum(x['weight']))
-                mesh[f'I_{i}'] = mesh[mesh_file_pk].map(weighted_avg)
+                values = area_weighted_mean(mesh, indicator)
             else:
-                max_value = intersection.groupby(mesh_file_pk)['CL_ORIG'].max()
-                mesh[f'I_{i}'] = mesh[mesh_file_pk].map(max_value)
+                intersection = gpd.sjoin(mesh, indicator, how='inner', predicate='intersects')
+                values = intersection.groupby(MESH_PK)['CL_ORIG'].max()
 
-            # New row to be added
-            new_row = {'file_name': file_name_only, 'column': f'I_{i}'}
+            column_key = f'I_{next_col_id}'
+            mesh[column_key] = mesh[MESH_PK].map(values)
+            next_col_id += 1
 
-            # Add the new row to the DataFrame
-            df_column_relation = df_column_relation.append(
-                new_row, ignore_index=True)
-
-            # Save the DataFrame to an Excel file
-            df_column_relation.to_excel(column_relation_file_name, index=False)
-
-            # Save the updated mesh
+            record(file_name_only, column_key)
             mesh.to_file(updated_mesh_file_path)
 
             print("\nUpdated mesh saved to: ", updated_mesh_file_path)
@@ -180,6 +154,7 @@ def main(args):
 
         except Exception as ex:
             print(f'ERROR: {ex}\n')
+            print(traceback.format_exc())
 
 
 if __name__ == "__main__":
@@ -195,19 +170,17 @@ if __name__ == "__main__":
     parser.add_argument("--new_mesh_file", required=True,
                         help="Path to the new updated mesh file.")
     parser.add_argument("--average", action='store_true',
-                        help="Calculate the average of the pixel values within each mesh polygon. If False, take the maximum value.")
+                        help="Area-weighted average of the indicator values intersecting each mesh feature. If False, take the maximum value.")
     parser.add_argument("--debug", action='store_true',
                         help="Activate debug mode.")
-    parser.add_argument("--output_folder", default='output', required=True,
-                        help="Path to the directory that will be used to save the generated files.")
-    
+    parser.add_argument("--output_folder", default='output',
+                        help="Path to the directory that will be used to save the generated files (default: output).")
     parser.add_argument("--target_filters", default=None, required=False,
-                        help="Filter collumns")
+                        help="Filter columns (not applied yet)")
 
     args = parser.parse_args()
 
     initial_time = time.time()
     main(args)
-    final_time = time.time()
-    total_time_in_minutes = (final_time - initial_time) / 60
+    total_time_in_minutes = (time.time() - initial_time) / 60
     print(f"Total time: {total_time_in_minutes} minutes")

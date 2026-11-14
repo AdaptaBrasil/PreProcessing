@@ -9,7 +9,7 @@ composicoes_fname = r"composicao.csv"
 valores_fname = r"valores.csv"
 proporcionalidades_fname = r"proporcionalidades.csv"
 setores_fname = r"setores.csv"
-output_path = "D:\Atrium\Projects\AdaptaBrasil\Data\DADOS_2024_02_19_Adapta"
+output_path = r"D:\Atrium\Projects\AdaptaBrasil\Data\DADOS_2024_02_19_Adapta"
 
 def separateIndicators(indicadores, setores_id):
     try:
@@ -68,9 +68,10 @@ def separateProporcionalidades(indicadores, setores_id):
             indicadores_sep = indicadores.loc[indicadores['sep'] == row[0]]['id']
             col_index = 3
             while col_index < len(proporcionalidades_sep.columns):
-                column = proporcionalidades_sep.iloc[0][col_index]
-                if len(column) == 0:
+                cell = proporcionalidades_sep.iloc[0, col_index]
+                if pd.isna(cell) or len(str(cell)) == 0:
                     break
+                column = str(cell)
                 val_id = int(column[0:column.index('-')])
                 if val_id not in indicadores_sep.values:
                     proporcionalidades_sep.drop(proporcionalidades_sep.columns[col_index], axis=1, inplace=True)

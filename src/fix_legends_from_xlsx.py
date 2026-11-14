@@ -64,9 +64,7 @@ def main(args):
         max_value = line.max
         legend_id = line.legend_id
 
-        print(f"Legend_id is null. New legend_id: {legend_id}")
         data = []
-        df_local = pd.DataFrame(column_relation_data)
 
         # Create a list with 5 values between [minimum and maximum]
         # Verificar se o min_value e o max_value são None ou Nan
@@ -101,9 +99,8 @@ def main(args):
         
             control_index_legend += 1
 
-        df_local = df_local.append(pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id']), ignore_index=True)
-
-        df_final = df_final.append(df_local, ignore_index=True)
+        df_local = pd.DataFrame(data, columns=['id', 'label', 'color', 'minvalue', 'maxvalue', 'legend_id','order', 'tag', 'indicator_id'])
+        df_final = pd.concat([df_final, df_local], ignore_index=True)
         new_legend_id += 1 
 
     # Save the final dataframe
@@ -125,12 +122,12 @@ if __name__ == "__main__":
                         help="Name of the settings_labels.csv file. Labels for the legends: label, color, order, tag.")
     parser.add_argument("--to_fix", required=True,
                         help="File to fix.") 
-    parser.add_argument("--output_folder", default='output', required=True,
+    parser.add_argument("--output_folder", default='output',
                         help="Path to the directory where the generated files will be saved.")
     parser.add_argument("--output_file", default='legends_indicators.csv', required=False,
                         help="Name of the output file.")
     
-    parser.add_argument("--legend_id", default=0, required=False,
+    parser.add_argument("--legend_id", type=int, default=0, required=False,
                         help="Legend id to be used. If it is not passed, the legend_id will be generated.")
     args = parser.parse_args()
 

@@ -1,4 +1,4 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 # coding: utf-8
 
 """
@@ -13,10 +13,13 @@ python3 src/generate_legends_description_from_values.py \
 
 """
 import argparse
-import time
-import pandas as pd
 import math
-from utilities import generate_continuous_intervals, validate_continuous_intervals, trunc_fix, trunc
+import os
+import time
+
+import pandas as pd
+
+from utilities import generate_continuous_intervals, validate_continuous_intervals
 
 
 class ModelMinMax:
@@ -56,7 +59,6 @@ def main(args):
     debug = args.debug
     output_folder = args.output_folder
     path_settings_labels = args.settings_labels
-    DECIMAL_PLACES = 1
 
     if debug:
         print("Passed arguments:")
@@ -67,9 +69,7 @@ def main(args):
         print("Output folder:", output_folder)
         
     # Cria a pasta de saída se não existir
-    import os
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+    os.makedirs(output_folder, exist_ok=True)
 
     # READ
     print("\n0. Reading input files...")
@@ -99,8 +99,8 @@ def main(args):
     }
     
     # CLEAN DATAFRAME
-    df_final = pd.DataFrame(column_relation_data)
-    df_values = df_values.drop(columns=['id'])
+    rows = []
+    df_values = df_values.drop(columns=['id'], errors='ignore')
     df_values = df_values.dropna(how='all')
     
     # MODEL MIN MAX
@@ -110,7 +110,7 @@ def main(args):
     for nome_coluna, coluna_series in df_values.items():
         print(f"Processing column: {nome_coluna}")
         
-        code = nome_coluna.split('-')[0]
+        code = str(nome_coluna).split('-')[0]
     
         minimo = coluna_series.min()
         max_value = coluna_series.max()
@@ -138,19 +138,12 @@ def main(args):
             raise ValueError(f"Intervals for indicator_id {code} are not continuous.")
         else:
             print(f"Intervals for indicator_id {code} (legend {legend_id}) are continuous and valid.")
-            if str(legend_id) == '25':
-                print("Intervals:", values)
-                for v in values:
-                    print(v)
-                # exit(1)
         
         for j, sl in setting_labels.iterrows():
             
             minimo = ""
             maximo = ""
             if sl.label != 'Dado indisponível':
-                #minimo = trunc_fix(values[j][0], DECIMAL_PLACES)
-                #maximo = trunc_fix(values[j][1], DECIMAL_PLACES)
                 minimo = values[j][0]
                 maximo = values[j][1]
 
@@ -163,8 +156,10 @@ def main(args):
                 'maximo': maximo,
                 'ordem': sl.order
             }
-            df_final = df_final._append(new_row, ignore_index=True)
-        legend_id+=1
+            rows.append(new_row)
+        legend_id += 1
+
+    df_final = pd.concat([pd.DataFrame(column_relation_data), pd.DataFrame(rows)], ignore_index=True)
     
     
     print("\n3. Final dataframe legend:")

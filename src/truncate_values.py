@@ -9,25 +9,20 @@ python3 src/truncate_values.py --input_file valores.xlsx --decimal_places 2
 """
 
 import argparse
-import pandas as pd
-import numpy as np
-import math
 import os
+from decimal import ROUND_DOWN, Decimal
+
+import numpy as np
+import pandas as pd
 
 
 def truncate_float(value, decimal_places):
     """
-    Truncate a float value to specified decimal places without rounding.
-    
-    Args:
-        value: The float value to truncate
-        decimal_places: Number of decimal places to keep
-        
-    Returns:
-        Truncated float value
+    Truncate a float value to specified decimal places without rounding
+    (toward zero, so -1.239 -> -1.23). Uses Decimal so 0.29 stays 0.29.
     """
-    multiplier = 10 ** decimal_places
-    return math.floor(value * multiplier) / multiplier
+    quantum = Decimal(1).scaleb(-decimal_places)
+    return float(Decimal(repr(float(value))).quantize(quantum, rounding=ROUND_DOWN)) + 0.0
 
 
 def process_cell_value(value, decimal_places):
@@ -121,7 +116,7 @@ def main():
         
         # Process each cell in the dataframe (skip 'id' column)
         for col in df_truncated.columns:
-            if col.lower() == 'id':
+            if str(col).lower() == 'id':
                 print(f"Skipping column: {col} (ID column)")
                 continue
                 
