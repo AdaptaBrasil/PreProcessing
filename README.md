@@ -76,6 +76,7 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
   - [Erros Comuns ](#erros-comuns-)
       - [Erro do rtree ](#erro-do-rtree-)
       - [Erro do progress bar ](#erro-do-progress-bar-)
+      - [Erro "The EPSG code is unknown" com PostGIS instalado (Windows)](#erro-proj-postgis)
       - [Criando o ambiente virtual](#criando-o-ambiente-virtual)
 
 
@@ -593,6 +594,33 @@ pip3 install rtree==1.0.1
 ```shell
 pip3 install progress progressbar2 alive-progress tqdm
 ```
+
+#### Erro "The EPSG code is unknown" com PostGIS instalado (Windows) <a name="erro-proj-postgis"></a>
+
+O instalador do PostgreSQL/PostGIS no Windows define as variáveis de ambiente `PROJ_LIB` e `GDAL_DATA` para todo o sistema, apontando para a sua própria cópia (mais antiga) do `proj.db`. Com isso, `rasterio`, `pyproj` e `geopandas` carregam esse banco em vez do que vem com eles e falham com erros como:
+
+```
+CRSError: The EPSG code is unknown. PROJ: proj_create_from_database: ...\PostgreSQL\16\share\contrib\postgis-3.6\proj\proj.db contains DATABASE.LAYOUT.VERSION.MINOR = 2 whereas a number >= 6 is expected. It comes from another PROJ installation.
+```
+
+Os scripts em `src/` já tratam isso: o módulo `src/proj_env.py` remove `PROJ_LIB`, `PROJ_DATA` e `GDAL_DATA` **apenas do processo do próprio script** e **apenas quando apontam para uma pasta do PostgreSQL**. O PostGIS e as variáveis do Windows não são alterados.
+
+Se você usar `rasterio`/`geopandas` em código próprio ou em notebooks, importe esse módulo **antes** das bibliotecas geoespaciais:
+
+```python
+import sys; sys.path.insert(0, "src")  # se estiver fora de src/
+import proj_env  # noqa: F401
+import geopandas as gpd
+import rasterio
+```
+
+Alternativa para uma sessão do terminal (PowerShell):
+
+```powershell
+Remove-Item Env:PROJ_LIB, Env:GDAL_DATA -ErrorAction SilentlyContinue
+```
+
+Não é recomendado remover essas variáveis do sistema, pois o PostGIS pode depender delas.
 
 #### Criando o ambiente virtual
 ```shell
