@@ -14,6 +14,10 @@ Aqui estão os capítulos disponíveis para explorar neste projeto:
   - [Instalação De Dependências do Projeto](#instalação-de-dependências-do-projeto)
     - [Pré-requisitos](#pré-requisitos)
     - [Instalação](#instalação)
+  - [Testes](#testes)
+    - [Executando os testes](#executando-os-testes)
+    - [O que é testado](#o-que-é-testado)
+    - [Adicionando novos testes](#adicionando-novos-testes)
   - [Merge de Indicadores Shapefiles em Malha](#merge-de-indicadores-shapefiles-em-malha)
     - [Requisitos](#requisitos)
     - [Como usar](#como-usar)
@@ -109,6 +113,42 @@ poetry install
 # 4. Ative o ambiente virtual
 eval $(poetry env activate)
 ```
+
+## Testes
+
+Os testes automatizados ficam em `tests/` e usam o [pytest](https://docs.pytest.org/). O pytest está no grupo de dependências de desenvolvimento, que o `poetry install` já instala por padrão (para instalar só as dependências de execução, use `poetry install --without dev`).
+
+### Executando os testes
+
+Na raiz do projeto:
+
+```bash
+# Rodar todos os testes
+poetry run pytest
+
+# Saída detalhada, um teste por linha
+poetry run pytest -v
+
+# Rodar apenas os testes cujo nome contém uma palavra
+poetry run pytest -k trunc
+
+# Parar no primeiro erro
+poetry run pytest -x
+```
+
+Não é preciso ativar o ambiente virtual nem estar dentro de `src/`: a configuração em `pyproject.toml` (`[tool.pytest.ini_options]`) já adiciona `src/` ao caminho de importação, então os testes importam os módulos diretamente (`import utilities`, `import generate_qml_from_legends` etc.). Os testes não usam arquivos de dados externos e rodam em poucos segundos.
+
+### O que é testado
+
+- **Truncamento de valores**: `utilities.trunc` e `truncate_values.truncate_float` (truncamento em direção a zero, sem erros de ponto flutuante como `0.29 → 0.28`).
+- **Intervalos de legenda**: `generate_value_pairs`, `generate_continuous_intervals` e `validate_continuous_intervals` (classes contínuas, com passo de 0.01, sem lacunas ou sobreposições).
+- **QML**: gravação por `generate_qml_from_legends` e leitura de volta por `utilities.parse_qml_file`, validação de legendas e conversão de cores.
+- **Funções geoespaciais auxiliares**: partes de polígonos/multipolígonos, numeração das colunas `I_<n>` e detecção da coluna do indicador.
+- **`proj_env`**: remoção das variáveis `PROJ_LIB`/`GDAL_DATA` do PostGIS (veja [Erros Comuns](#erro-proj-postgis)).
+
+### Adicionando novos testes
+
+Crie funções com nome iniciado por `test_` em arquivos `tests/test_*.py`. Para arquivos temporários, use o fixture `tmp_path` do pytest, como em `test_qml_round_trip`.
 
 ## Merge de Indicadores Shapefiles em Malha
 
