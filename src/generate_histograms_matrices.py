@@ -3,6 +3,7 @@
 
 # Example: python3 generate_histograms_matrices.py --mesh_file=local_data/indicadores_ferrovias_em_operacao_vmax/indicadores_ferrovias_em_operacao_vmax.shp --indicator_files_mask=local_data/indicadores/*.shp --indicators_spreadsheet=local_data/planilhas/indicadores_ferrovias_em_operacao_vmax.xlsx --m --h --debug --output_folder=output/result_histograms_matrices
 
+import proj_env  # noqa: F401 -- must run before rasterio/pyproj/geopandas load
 import argparse
 import os
 import time

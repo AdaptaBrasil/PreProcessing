@@ -3,6 +3,7 @@
 
 # Example: python3 reproject_shapefiles.py --input_mask=local_data/indicadores/*.shp --target_epsg=4326 --suffix=_shpreprojected --output_dir=output/new_shapefiles
 
+import proj_env  # noqa: F401 -- must run before rasterio/pyproj/geopandas load
 import os
 import argparse
 import geopandas as gpd

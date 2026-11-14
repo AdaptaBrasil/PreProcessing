@@ -2,6 +2,7 @@
 # coding: utf-8
 
 # Example: python3 confusion_matrix_n_cases.py --mesh_file=local_data/malha/ferrovias.shp  --indicator_files_mask=local_data/indicadores/*.shp --indicators_spreadsheet=local_data/planilhas/solução_risco_desl_para_matriz.xlsx --debug --output_folder=output/confusion_matrices
+import proj_env  # noqa: F401 -- must run before rasterio/pyproj/geopandas load
 import geopandas as gpd
 from pyproj import CRS
 import pandas as pd

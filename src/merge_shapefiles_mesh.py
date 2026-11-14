@@ -4,6 +4,7 @@
 # Examples: python3 merge_shapefiles_mesh.py --mesh_file=local_data/malha/ferrovias.shp --indicator_files_mask=local_data/indicadores/*.shp --column_relation_file=relacao_arquivos_colunas_malha_rodovias.xlsx --new_mesh_file=indicadores_rodovias.shp --average --debug --output_folder=output/result_shapefiles_mesh
 #           python3 merge_shapefiles_mesh.py --mesh_file=D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\Ferrovias\FerroviasEmOperacao.shp --indicator_files_mask=D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\02_FERROVIAS_Adriano\04_BASE_DE_DADOS/*.shp --column_relation_file=teste.xlsx --new_mesh_file=indicadores_ferrovias_teste.shp --average --debug --output_folder=D:\Atrium\Projects\AdaptaBrasil\Data\Adaptavias\output\teste
 
+import proj_env  # noqa: F401 -- must run before rasterio/pyproj/geopandas load
 import argparse
 import glob
 import os

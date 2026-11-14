@@ -9,6 +9,8 @@ legends start quickly.
 
 from __future__ import annotations
 
+import proj_env  # noqa: F401 -- must run before rasterio/pyproj/geopandas load
+
 import os
 import re
 from decimal import ROUND_DOWN, Decimal, InvalidOperation, localcontext

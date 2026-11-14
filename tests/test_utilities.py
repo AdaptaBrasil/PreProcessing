@@ -149,3 +149,16 @@ def test_find_indicator_column():
     assert u.find_indicator_column(['N_ORIG'], df) == 'CL-ORIG'   # hyphen used to break .query()
     assert u.find_indicator_column(['other'], df) == 'other'
     assert u.find_indicator_column([], pd.DataFrame({'x': [2.0]})) is None
+
+
+def test_proj_env_drops_only_postgresql_paths(monkeypatch):
+    import importlib
+    import os
+    import proj_env
+
+    monkeypatch.setenv("PROJ_LIB", r"C:\Program Files\PostgreSQL\16\share\contrib\postgis-3.6\proj")
+    monkeypatch.setenv("GDAL_DATA", r"C:\Program Files\PostgreSQL\16\gdal-data")
+    monkeypatch.setenv("PROJ_DATA", r"D:\my\own\proj")
+    importlib.reload(proj_env)
+    assert "PROJ_LIB" not in os.environ and "GDAL_DATA" not in os.environ
+    assert os.environ["PROJ_DATA"] == r"D:\my\own\proj"

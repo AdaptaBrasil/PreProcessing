@@ -2,6 +2,7 @@
 # coding: utf-8
 # Example: python3 merge_rasters_mesh.py --indicator_files_mask=local_data/rasters/*.tif --mesh_file=local_data/malha/ferrovias.shp --column_relation_file=relacao_arquivos_colunas_malha_rodovias.xlsx --new_mesh_file=indicadores_rodovias.shp --average --debug --output_folder=output/result_rasters_mesh
 
+import proj_env  # noqa: F401 -- must run before rasterio/pyproj/geopandas load
 import argparse
 import glob
 import os
